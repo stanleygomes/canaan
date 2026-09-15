@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import quote
 
+from .db import save_properties
 from .scrapers.chavesnamao import ChavesNaMaoScraper
 from .scrapers.imobiliarias_uberlandia import AGENCIES
 from .scrapers.imovelweb import ImovelWebScraper
@@ -140,6 +141,14 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
     output_path = ROOT / str(filters.get("output_file", "imoveis_filtrados.json"))
     with output_path.open("w", encoding="utf-8") as output:
         json.dump(list(unique.values()), output, ensure_ascii=False, indent=2)
+
+    if filters.get("persist_database", True):
+        try:
+            saved = save_properties(unique.values())
+            print(f"=== Banco atualizado: {saved} imóveis persistidos ===")
+        except Exception as error:
+            print(f" [!] Não foi possível persistir no PostgreSQL: {error}")
+
     print(f"\n=== Busca concluída: {len(unique)} imóveis em '{output_path.name}' ===")
     return list(unique.values())
 

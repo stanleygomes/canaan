@@ -8,6 +8,8 @@ Sistema automatizado de busca e extração de dados (web scraping) de portais im
 
 O objetivo do projeto é monitorar ofertas de imóveis na web de forma automatizada, coletando detalhes aprofundados de cada anúncio e armazenando-os de forma estruturada para consulta e análise.
 
+Os imóveis são persistidos na tabela PostgreSQL `properties`. O contrato possui campos tipados para os dados comuns e campos `JSONB` para endereço, anunciante, geolocalização, comodidades, imagens e o payload original. A chave única `(portal, url)` permite atualizar anúncios já conhecidos sem criar duplicatas.
+
 ---
 
 ## 🔎 Metodologia de coleta
@@ -21,6 +23,8 @@ Cada scraper acessa uma URL de busca configurada usando Playwright em navegador 
 ### Busca unificada por filtros
 
 Os filtros da busca ficam em [`config/search_filters.toml`](config/search_filters.toml). Para consultar todos os sources configurados, execute `make scrape`; para consultar apenas uma fonte, use `make scrape SOURCE=olx` ou `make scrape SOURCE=rotina`. O sistema coleta os anúncios, aplica os filtros comuns, remove duplicidades por URL e salva o resultado consolidado em `imoveis_filtrados.json`.
+
+Antes da coleta, suba o banco com `make db-up`. A conexão pode ser sobrescrita pela variável `DATABASE_URL`; por padrão, usa o PostgreSQL definido no `docker-compose.yml`.
 
 ### 1. Coleta e Scraping Automatizado
 - **Parâmetros pré-configurados**: filtros de busca definidos (localização, faixa de preço, tipo de imóvel, número de quartos, etc.).
