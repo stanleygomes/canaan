@@ -18,6 +18,10 @@ Cada scraper acessa uma URL de busca configurada usando Playwright em navegador 
 
 ## 🚀 Funcionalidades
 
+### Busca unificada por filtros
+
+Os filtros da busca ficam em [`config/search_filters.toml`](config/search_filters.toml). Para consultar todos os sources configurados, execute `make scrape`; para consultar apenas uma fonte, use `make scrape SOURCE=olx` ou `make scrape SOURCE=rotina`. O sistema coleta os anúncios, aplica os filtros comuns, remove duplicidades por URL e salva o resultado consolidado em `imoveis_filtrados.json`.
+
 ### 1. Coleta e Scraping Automatizado
 - **Parâmetros pré-configurados**: filtros de busca definidos (localização, faixa de preço, tipo de imóvel, número de quartos, etc.).
 - **Execução agendada**: rotinas diárias executadas em horários definidos para verificar novos imóveis e atualizações.

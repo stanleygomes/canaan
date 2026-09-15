@@ -1,6 +1,7 @@
 import asyncio
 import json
 import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -31,6 +32,26 @@ def clean_currency(value: Any) -> Optional[float]:
 def clean_int(value: Any) -> Optional[int]:
     match = re.search(r"\d+", str(value or ""))
     return int(match.group()) if match else None
+
+
+def fold_text(value: Any) -> str:
+    text = unicodedata.normalize("NFKD", str(value or ""))
+    return "".join(char for char in text if not unicodedata.combining(char)).lower()
+
+
+def labeled_number(lines: List[str], labels: List[str]) -> Optional[int]:
+    for index, line in enumerate(lines):
+        current = fold_text(line)
+        context = f"{current} {fold_text(lines[index + 1]) if index + 1 < len(lines) else ''}"
+        for label in labels:
+            match = re.search(rf"(\d+)\s*{re.escape(fold_text(label))}", context)
+            if match:
+                return int(match.group(1))
+            if fold_text(label) in current and index > 0:
+                previous = clean_int(lines[index - 1])
+                if previous is not None:
+                    return previous
+    return None
 
 
 @dataclass
@@ -88,6 +109,9 @@ class ListingPortalScraper:
             price = next((clean_currency(line) for line in lines if line.startswith("R$") and clean_currency(line) is not None), None)
 
             def find_number(words: List[str]) -> Optional[int]:
+                labeled = labeled_number(lines, words)
+                if labeled is not None:
+                    return labeled
                 for line in lines:
                     if any(word in line.lower() for word in words):
                         value = clean_int(line)
@@ -124,6 +148,43 @@ class ListingPortalScraper:
             })
         return results
 
+    async def enrich_from_detail(self, page: Page, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Completa campos que alguns portais só exibem na página do anúncio."""
+        try:
+            await page.goto(item["url"], wait_until="domcontentloaded", timeout=45000)
+            await page.wait_for_timeout(700)
+            lines = await page.locator("body").evaluate(
+                "body => body.innerText.split('\\n').map(x => x.trim()).filter(Boolean)"
+            )
+            title = await page.locator("h1").first.inner_text() if await page.locator("h1").count() else ""
+            detail_text = " | ".join(lines)
+            if title:
+                item["title"] = title.strip()
+            if not item.get("price"):
+                item["price"] = next((clean_currency(line) for line in lines if line.startswith("R$") and clean_currency(line) is not None), None)
+
+            def detail_number(words: List[str]) -> Optional[int]:
+                labeled = labeled_number(lines, words)
+                if labeled is not None:
+                    return labeled
+                for line in lines:
+                    if any(word in fold_text(line) for word in words):
+                        value = clean_int(line)
+                        if value is not None:
+                            return value
+                return None
+
+            item["bedrooms"] = item.get("bedrooms") or detail_number(["quarto", "dormitorio"])
+            item["bathrooms"] = item.get("bathrooms") or detail_number(["banheiro"])
+            item["garages"] = item.get("garages") or detail_number(["vaga", "garagem"])
+            item["useful_area_m2"] = item.get("useful_area_m2") or detail_number(["m²", "m2", "metros"])
+            item["description"] = item.get("description") or detail_text[:4000]
+            if item.get("property_type") == "Imóvel":
+                item["property_type"] = "Apartment" if "apartamento" in fold_text(item["title"] + detail_text) else item["property_type"]
+        except Exception as error:
+            print(f" [!] Não foi possível enriquecer {item.get('url')}: {error}")
+        return item
+
     async def run(self, search_url: Optional[str] = None, max_pages: int = 1, max_properties: int = 5, output_file: Optional[str] = None):
         search_url = search_url or self.config.default_url
         output_file = output_file or f"{self.config.portal}_imoveis.json"
@@ -143,6 +204,9 @@ class ListingPortalScraper:
                     await page.wait_for_timeout(2500)
                     cards = await self.extract_cards(page)
                     print(f"    Extraídos {len(cards)} imóveis.")
+                    for card in cards:
+                        if not card.get("bedrooms") or not card.get("price"):
+                            await self.enrich_from_detail(page, card)
                     results.extend(cards[: max_properties - len(results)])
                 except Exception as error:
                     print(f" [!] Erro ao carregar listagem: {error}")

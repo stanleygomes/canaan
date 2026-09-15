@@ -1,0 +1,33 @@
+# Filtros usados pelo comando: make scrape
+[search]
+city = "Uberlândia"
+state = "MG"
+neighborhoods = []
+property_type = "apartamento"
+bedrooms_min = 3
+max_price = 600000
+purpose = "sale"
+max_pages = 1
+max_properties_per_source = 30
+output_file = "imoveis_filtrados.json"
+
+# Use "all" para consultar todos os sources ou informe um source no Make:
+# make scrape SOURCE=olx
+sources = [
+  "chavesnamao",
+  "vivareal",
+  "zapimoveis",
+  "olx",
+  "imovelweb",
+  "quintoandar",
+  "mercadolivre",
+  "loft",
+  "rotina",
+  "multi",
+  "objetiva",
+  "alianca",
+  "delta",
+  "arantes",
+  "ivan",
+  "lider",
+]
