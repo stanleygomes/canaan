@@ -311,6 +311,8 @@ def list_properties(
     price_max: Optional[float] = None,
     bedrooms_min: Optional[int] = None,
     bbox: Optional[Tuple[float, float, float, float]] = None,
+    sort_by: str = "last_seen_at",
+    sort_order: str = "desc",
 ) -> Dict[str, Any]:
     ensure_schema()
     where: List[str] = []
@@ -344,6 +346,15 @@ def list_properties(
 
     predicate = f"WHERE {' AND '.join(where)}" if where else ""
     offset = (page - 1) * page_size
+    sort_columns = {
+        "price": "price",
+        "useful_area_m2": "useful_area_m2",
+        "bedrooms": "bedrooms",
+        "collected_at": "collected_at",
+        "last_seen_at": "last_seen_at",
+    }
+    order_column = sort_columns.get(sort_by, "last_seen_at")
+    order_direction = "ASC" if sort_order == "asc" else "DESC"
 
     with psycopg.connect(database_url(), row_factory=dict_row) as connection:
         with connection.cursor() as cursor:
@@ -354,7 +365,7 @@ def list_properties(
                 SELECT {PROPERTY_COLUMNS}
                 FROM properties
                 {predicate}
-                ORDER BY last_seen_at DESC, id DESC
+                ORDER BY {order_column} {order_direction} NULLS LAST, id DESC
                 LIMIT %s OFFSET %s
                 """,
                 [*params, page_size, offset],
