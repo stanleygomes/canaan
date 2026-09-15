@@ -18,3 +18,55 @@ body,
   min-height: 100%;
   margin: 0;
 }
+
+.field {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  background: #fff;
+  padding: 0.7rem 0.85rem;
+  color: #0f172a;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgb(15 23 42 / 10%);
+}
+
+.label {
+  display: block;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.button-primary,
+.button-secondary {
+  border-radius: 999px;
+  padding: 0.75rem 1.15rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.button-primary {
+  background: #e11d48;
+  color: #fff;
+}
+
+.button-secondary {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+}
+
+.button-primary:hover,
+.button-secondary:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
