@@ -3,7 +3,7 @@
 # Backend API: 8088
 # Frontend: 5188
 
-.PHONY: help install db-up db-down db-logs scrape backend frontend
+.PHONY: help install db-up db-down db-logs scrape backend cron frontend
 
 help:
 	@echo "Comandos disponiveis:"
@@ -13,7 +13,8 @@ help:
 	@echo "  make db-logs           - Acompanha os logs do banco"
 	@echo "  make scrape             - Busca todos os sources usando config/search_filters.toml"
 	@echo "  make scrape SOURCE=olx - Busca somente um source específico"
-	@echo "  make backend           - Inicia o backend FastAPI na porta 8088 (futuro)"
+	@echo "  make backend           - Inicia a API FastAPI na porta 8088"
+	@echo "  make cron              - Inicia o processo de execução agendada"
 	@echo "  make frontend          - Inicia o frontend React na porta 5188 (futuro)"
 
 install:
@@ -34,6 +35,9 @@ scrape:
 
 backend:
 	uv run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8088
+
+cron:
+	uv run python -m src.cron
 
 frontend:
 	cd frontend && npm run dev -- --port 5188 --host 0.0.0.0

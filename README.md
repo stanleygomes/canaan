@@ -26,6 +26,16 @@ Os filtros da busca ficam em [`config/search_filters.toml`](config/search_filter
 
 Antes da coleta, suba o banco com `make db-up`. A conexão pode ser sobrescrita pela variável `DATABASE_URL`; por padrão, usa o PostgreSQL definido no `docker-compose.yml`.
 
+### API e execução agendada
+
+Copie `.env.example` para `.env` e ajuste `SCRAPE_CRON` conforme necessário. Inicie a API com `make backend` e o processo agendador separado com `make cron`.
+
+- `POST /api/v1/scrape-runs` inicia uma coleta manual. Corpo opcional: `{ "source": "olx" }`.
+- `GET /api/v1/scrape-runs/{run_id}` consulta o estado da coleta.
+- `GET /health` verifica se a API está disponível.
+
+API e cron chamam o mesmo serviço de aplicação e compartilham um lock advisory do PostgreSQL, evitando duas coletas simultâneas.
+
 ### 1. Coleta e Scraping Automatizado
 - **Parâmetros pré-configurados**: filtros de busca definidos (localização, faixa de preço, tipo de imóvel, número de quartos, etc.).
 - **Execução agendada**: rotinas diárias executadas em horários definidos para verificar novos imóveis e atualizações.

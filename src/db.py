@@ -1,13 +1,12 @@
-import os
 from typing import Any, Dict, Iterable
 
 import psycopg
 from psycopg.types.json import Jsonb
 
+from .settings import get_settings
 
-DEFAULT_DATABASE_URL = (
-    "postgresql://canaan_user:canaan_password@localhost:5435/canaan"
-)
+
+SCRAPE_LOCK_KEY = "canaan:scrape"
 
 
 SCHEMA_SQL = """
@@ -97,7 +96,55 @@ ON CONFLICT (portal, url) DO UPDATE SET
 
 
 def database_url() -> str:
-    return os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL)
+    return get_settings().database_url
+
+
+class ScrapeAlreadyRunning(RuntimeError):
+    pass
+
+
+class DatabaseUnavailable(RuntimeError):
+    pass
+
+
+class ScrapeExecutionLock:
+    """Lock distribuído no PostgreSQL para API e cron compartilharem o estado."""
+
+    def __init__(self) -> None:
+        self.connection: psycopg.Connection | None = None
+
+    def acquire(self) -> "ScrapeExecutionLock":
+        try:
+            self.connection = psycopg.connect(database_url(), connect_timeout=5)
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT pg_try_advisory_lock(hashtextextended(%s, 0))",
+                    (SCRAPE_LOCK_KEY,),
+                )
+                acquired = cursor.fetchone()[0]
+            if not acquired:
+                self.close()
+                raise ScrapeAlreadyRunning("Já existe uma execução em andamento")
+            return self
+        except ScrapeAlreadyRunning:
+            raise
+        except Exception as error:
+            self.close()
+            raise DatabaseUnavailable("PostgreSQL indisponível") from error
+
+    def close(self) -> None:
+        if self.connection is None:
+            return
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT pg_advisory_unlock(hashtextextended(%s, 0))",
+                    (SCRAPE_LOCK_KEY,),
+                )
+            self.connection.commit()
+        finally:
+            self.connection.close()
+            self.connection = None
 
 
 def normalized_property(item: Dict[str, Any]) -> Dict[str, Any]:
