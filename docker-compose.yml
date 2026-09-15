@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: canaan_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: canaan_user
+      POSTGRES_PASSWORD: canaan_password
+      POSTGRES_DB: canaan
+    ports:
+      - "5435:5432"
+    volumes:
+      - canaan_pgdata:/var/lib/postgresql/data
+
+volumes:
+  canaan_pgdata:

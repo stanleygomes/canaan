@@ -1,0 +1,83 @@
+[
+  {
+    "portal": "olx",
+    "url": "https://pr.olx.com.br/regiao-de-curitiba-e-paranagua/imoveis/studio-mobiliado-com-sacada-e-churrasqueira-condominio-smart-home-cajuru-curitiba-1535483804",
+    "title": "Studio mobiliado com sacada e churrasqueira | Condomínio Smart Home Cajuru, Curitiba",
+    "description": "",
+    "price": 370000.0,
+    "condominium_fee": null,
+    "iptu_fee": 512.0,
+    "currency": "BRL",
+    "property_type": "Imóvel",
+    "bedrooms": 1,
+    "suites": null,
+    "bathrooms": 1,
+    "garages": 1,
+    "useful_area_m2": 30,
+    "total_area_m2": null,
+    "address": {
+      "raw_text": "Curitiba, Cajuru"
+    },
+    "advertiser": {
+      "name": null
+    },
+    "images": [
+      "https://img.olx.com.br/thumbs700x500/14/147683801799140.webp"
+    ],
+    "collected_at": "2026-09-14T19:13:54.909990"
+  },
+  {
+    "portal": "olx",
+    "url": "https://pr.olx.com.br/regiao-de-ponta-grossa-e-guarapuava/imoveis/apartamento-semimobiliado-a-venda-alpha-garden-orfas-1535484007",
+    "title": "Apartamento semimobiliado à venda Alpha Garden - Órfãs",
+    "description": "",
+    "price": 700000.0,
+    "condominium_fee": null,
+    "iptu_fee": null,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 2,
+    "suites": null,
+    "bathrooms": 2,
+    "garages": 2,
+    "useful_area_m2": 155,
+    "total_area_m2": null,
+    "address": {
+      "raw_text": "Ponta Grossa, Orfãs"
+    },
+    "advertiser": {
+      "name": null
+    },
+    "images": [
+      "https://img.olx.com.br/thumbs700x500/38/386660565235724.webp"
+    ],
+    "collected_at": "2026-09-14T19:13:54.910051"
+  },
+  {
+    "portal": "olx",
+    "url": "https://pr.olx.com.br/regiao-de-ponta-grossa-e-guarapuava/imoveis/apartamento-a-venda-condominio-vista-oficinas-1535483722",
+    "title": "Apartamento à venda Condomínio Vista - Oficinas",
+    "description": "",
+    "price": 260000.0,
+    "condominium_fee": null,
+    "iptu_fee": null,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 2,
+    "suites": null,
+    "bathrooms": 1,
+    "garages": 1,
+    "useful_area_m2": 54,
+    "total_area_m2": null,
+    "address": {
+      "raw_text": "Ponta Grossa, Colônia Dona Luíza"
+    },
+    "advertiser": {
+      "name": null
+    },
+    "images": [
+      "https://img.olx.com.br/thumbs700x500/30/303627448999741.webp"
+    ],
+    "collected_at": "2026-09-14T19:13:54.910097"
+  }
+]

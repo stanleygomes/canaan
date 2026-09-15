@@ -1,0 +1,95 @@
+[
+  {
+    "portal": "vivareal",
+    "url": "https://www.vivareal.com.br/imovel/apartamento-2-quartos-sitio-cercado-bairros-curitiba-com-garagem-43m2-venda-RS220000-id-2911388318/",
+    "title": "Apartamento para comprar com 43 m², 2 quartos, 1 banheiro, 1 vaga em",
+    "description": "",
+    "price": 220000.0,
+    "condominium_fee": 445.0,
+    "iptu_fee": 422.0,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 2,
+    "suites": null,
+    "bathrooms": 1,
+    "garages": 1,
+    "useful_area_m2": 43,
+    "total_area_m2": null,
+    "address": {
+      "street": "Rua Agenor Antônio Rodrigues",
+      "locality": "Sítio Cercado, Curitiba",
+      "raw_text": "Rua Agenor Antônio Rodrigues, Sítio Cercado, Curitiba"
+    },
+    "advertiser": {
+      "name": "ReMax Start"
+    },
+    "images": [
+      "https://resizedimgs.vivareal.com/img/vr-listing/813ccc8c7a9e65abef744a59fa158c3a/apartamento-com-2-quartos-a-venda-43m-no-sitio-cercado-curitiba.webp?action=fit-in&dimension=614x297",
+      "https://resizedimgs.vivareal.com/img/vr-listing/bb816cc299e49654c270b8a8e9c695e5/apartamento-com-2-quartos-a-venda-43m-no-sitio-cercado-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.vivareal.com/img/vr-listing/6acbcdeba6b0b9559eb894f9a3533cb4/apartamento-com-2-quartos-a-venda-43m-no-sitio-cercado-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.vivareal.com/img/vr-listing/ec2b8c29b3f6b45b995110640d69ac34/apartamento-com-2-quartos-a-venda-43m-no-sitio-cercado-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.vivareal.com/img/vr-listing/c61d1bed4c397c9967bcd77f57de8eb7/apartamento-com-2-quartos-a-venda-43m-no-sitio-cercado-curitiba.webp?action=fit-in&dimension=614x297&seo=false"
+    ],
+    "collected_at": "2026-09-14T19:12:55.563249"
+  },
+  {
+    "portal": "vivareal",
+    "url": "https://www.vivareal.com.br/imovel/apartamento-3-quartos-capao-raso-bairros-curitiba-com-garagem-109m2-venda-RS770000-id-2911494741/",
+    "title": "Apartamento para comprar com 109 m², 3 quartos, 2 banheiros, 1 vaga em",
+    "description": "",
+    "price": 770000.0,
+    "condominium_fee": 1.0,
+    "iptu_fee": 1.0,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 3,
+    "suites": null,
+    "bathrooms": 2,
+    "garages": 1,
+    "useful_area_m2": 109,
+    "total_area_m2": null,
+    "address": {
+      "street": "Rua José Zaleski",
+      "locality": "Capão Raso, Curitiba",
+      "raw_text": "Rua José Zaleski, Capão Raso, Curitiba"
+    },
+    "advertiser": {
+      "name": "Newcore"
+    },
+    "images": [],
+    "collected_at": "2026-09-14T19:12:55.563315"
+  },
+  {
+    "portal": "vivareal",
+    "url": "https://www.vivareal.com.br/imovel/apartamento-1-quartos-centro-bairros-curitiba-26m2-venda-RS390000-id-2866359074/",
+    "title": "+30 fotos",
+    "description": "",
+    "price": 390000.0,
+    "condominium_fee": 300.0,
+    "iptu_fee": 100.0,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 1,
+    "suites": null,
+    "bathrooms": 1,
+    "garages": null,
+    "useful_area_m2": 26,
+    "total_area_m2": null,
+    "address": {
+      "street": null,
+      "locality": null,
+      "raw_text": ""
+    },
+    "advertiser": {
+      "name": "Apartamento mobiliado com 1 dormitório e 1 banheiro disponível para compra em"
+    },
+    "images": [
+      "https://resizedimgs.vivareal.com/img/vr-listing/87eb4a8a8aa14b218bf8e606d2844430/apartamento-com-1-quarto-a-venda-26m-no-centro-curitiba.webp?action=fit-in&dimension=614x297",
+      "https://resizedimgs.vivareal.com/img/vr-listing/22d31882ebb1b248ca5f52107fd8a505/apartamento-com-1-quarto-a-venda-26m-no-centro-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.vivareal.com/img/vr-listing/edf52f0e9e707b6e3579e352306de737/apartamento-com-1-quarto-a-venda-26m-no-centro-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.vivareal.com/img/vr-listing/80439ede7da8bc4fef0ca73b8beca6f4/apartamento-com-1-quarto-a-venda-26m-no-centro-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.vivareal.com/img/vr-listing/ab008d4d0aef431f85a125f1f7f627d2/apartamento-com-1-quarto-a-venda-26m-no-centro-curitiba.webp?action=fit-in&dimension=614x297&seo=false"
+    ],
+    "collected_at": "2026-09-14T19:12:55.563352"
+  }
+]

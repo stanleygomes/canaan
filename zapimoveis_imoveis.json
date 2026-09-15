@@ -1,0 +1,101 @@
+[
+  {
+    "portal": "zapimoveis",
+    "url": "https://www.zapimoveis.com.br/imovel/venda-apartamento-3-quartos-mobiliado-bacacheri-curitiba-pr-84m2-id-2869331778/",
+    "title": "Apartamento para comprar com 84 m², 3 quartos, 2 banheiros, 1 vaga em",
+    "description": "",
+    "price": 698000.0,
+    "condominium_fee": 430.0,
+    "iptu_fee": 1200.0,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 3,
+    "suites": null,
+    "bathrooms": 2,
+    "garages": 1,
+    "useful_area_m2": 84,
+    "total_area_m2": null,
+    "address": {
+      "street": "Rua Joaquim Nabuco",
+      "locality": "Tingui, Curitiba",
+      "raw_text": "Rua Joaquim Nabuco, Tingui, Curitiba"
+    },
+    "advertiser": {
+      "name": "Auxiliadora Predial - Juvevê - CWB"
+    },
+    "images": [
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/97a3db44088da2c4c8e7cd373b5c310a/apartamento-com-3-quartos-a-venda-84m-no-tingui-curitiba.webp?action=fit-in&dimension=614x297",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/b91f282a7994ba77316a940535492a67/apartamento-com-3-quartos-a-venda-84m-no-tingui-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/193c7ee2586add6d29b5941e883d9774/apartamento-com-3-quartos-a-venda-84m-no-tingui-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/34d415340dbad4e15ccc97f502278e01/apartamento-com-3-quartos-a-venda-84m-no-tingui-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/7556815b18b4504d709e8188de1d373f/apartamento-com-3-quartos-a-venda-84m-no-tingui-curitiba.webp?action=fit-in&dimension=614x297&seo=false"
+    ],
+    "collected_at": "2026-09-14T19:13:17.669363"
+  },
+  {
+    "portal": "zapimoveis",
+    "url": "https://www.zapimoveis.com.br/lancamentos/oas-barigui-id-2846444217/",
+    "title": "Apartamento para comprar com 159 - 287 m², 3 quartos, 3 banheiros, 2 vagas em",
+    "description": "",
+    "price": 4678660.0,
+    "condominium_fee": null,
+    "iptu_fee": null,
+    "currency": "BRL",
+    "property_type": "Imóvel",
+    "bedrooms": 3,
+    "suites": null,
+    "bathrooms": 3,
+    "garages": 2,
+    "useful_area_m2": 231,
+    "total_area_m2": null,
+    "address": {
+      "street": "Rua Padre Anchieta, Bigorrilho, Curitiba",
+      "locality": "OAS BARIGUI",
+      "raw_text": "Rua Padre Anchieta, Bigorrilho, Curitiba, OAS BARIGUI"
+    },
+    "advertiser": {
+      "name": "GT BUILDING"
+    },
+    "images": [
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/e1408156fbf6004199151883bb9f53fa/oas-barigui-no-bigorrilho-curitiba.webp?action=fit-in&dimension=614x297",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/390408dd2646b3e3e7f4a889a37fc0e9/oas-barigui-no-bigorrilho-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/95e46b515498e671e5f33478616306ab/oas-barigui-no-bigorrilho-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/ed11dc9adeae8f082dbd306ed1b8755f/oas-barigui-no-bigorrilho-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/f0ce0e63d4bc4fd39d9e22e9e806468d/oas-barigui-no-bigorrilho-curitiba.webp?action=fit-in&dimension=614x297&seo=false"
+    ],
+    "collected_at": "2026-09-14T19:13:17.669398"
+  },
+  {
+    "portal": "zapimoveis",
+    "url": "https://www.zapimoveis.com.br/imovel/venda-apartamento-3-quartos-com-porcelanato-cabral-curitiba-pr-134m2-id-2880253378/",
+    "title": "+21 fotos",
+    "description": "",
+    "price": 1318700.0,
+    "condominium_fee": 1400.0,
+    "iptu_fee": 410.0,
+    "currency": "BRL",
+    "property_type": "Apartment",
+    "bedrooms": 3,
+    "suites": null,
+    "bathrooms": 5,
+    "garages": 2,
+    "useful_area_m2": 134,
+    "total_area_m2": null,
+    "address": {
+      "street": null,
+      "locality": null,
+      "raw_text": ""
+    },
+    "advertiser": {
+      "name": "Vizia Imóveis"
+    },
+    "images": [
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/0c4d6ad29fe31e27cfbf6c97779bb77f/apartamento-com-3-quartos-a-venda-134m-no-cabral-curitiba.webp?action=fit-in&dimension=614x297",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/682566509d902684f78ae4fa4ca0afdb/apartamento-com-3-quartos-a-venda-134m-no-cabral-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/d7505aaa7cfa2a4851783ed97f71a7f1/apartamento-com-3-quartos-a-venda-134m-no-cabral-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/c331b7a9b2585fe0106fcd8e2bb21662/apartamento-com-3-quartos-a-venda-134m-no-cabral-curitiba.webp?action=fit-in&dimension=614x297&seo=false",
+      "https://resizedimgs.zapimoveis.com.br/img/vr-listing/e7916da7ba841c38ff4d80658fee8b09/apartamento-com-3-quartos-a-venda-134m-no-cabral-curitiba.webp?action=fit-in&dimension=614x297&seo=false"
+    ],
+    "collected_at": "2026-09-14T19:13:17.669423"
+  }
+]
