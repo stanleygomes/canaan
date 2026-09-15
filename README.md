@@ -24,6 +24,8 @@ Cada scraper acessa uma URL de busca configurada usando Playwright em navegador 
 
 Os filtros da busca ficam em [`config/search_filters.toml`](config/search_filters.toml). Para consultar todos os sources configurados, execute `make scrape`; para consultar apenas uma fonte, use `make scrape SOURCE=olx` ou `make scrape SOURCE=rotina`. O sistema coleta os anúncios, aplica os filtros comuns, remove duplicidades por URL e salva o resultado consolidado em `imoveis_filtrados.json`.
 
+Os filtros são armazenados na tabela PostgreSQL `search_filters` e a configuração `default` é a fonte usada pelo scrape. Depois de alterar o TOML, use `make sync-filters`; se o PostgreSQL estiver indisponível, o TOML é usado como fallback.
+
 Antes da coleta, suba o banco com `make db-up`. A conexão pode ser sobrescrita pela variável `DATABASE_URL`; por padrão, usa o PostgreSQL definido no `docker-compose.yml`.
 
 ### API e execução agendada

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import quote
 
-from .db import save_properties
+from .db import get_search_filters, save_properties
 from .geocoding import NominatimGeocoder
 from .scrapers.chavesnamao import ChavesNaMaoScraper
 from .scrapers.imobiliarias_uberlandia import AGENCIES
@@ -114,7 +114,13 @@ async def collect_source(name: str, scraper: Any, filters: Dict[str, Any]) -> Li
 
 
 async def run(source: str = "all") -> List[Dict[str, Any]]:
-    filters = load_config()
+    file_filters = load_config()
+    try:
+        filters = get_search_filters() or file_filters
+        print("=== Filtros carregados do PostgreSQL ===")
+    except Exception as error:
+        filters = file_filters
+        print(f" [!] Não foi possível carregar filtros do PostgreSQL: {error}")
     available = source_scrapers()
     configured = filters.get("sources", list(available))
     selected = list(available) if source in ("", "all") else [source]

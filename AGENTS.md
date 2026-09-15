@@ -28,6 +28,7 @@ O Canaan coleta anúncios imobiliários em portais, normaliza os dados, geocodif
 | `make db-logs` | Acompanha os logs do PostgreSQL. |
 | `make scrape` | Executa a coleta de todos os sources configurados. |
 | `make scrape SOURCE=olx` | Executa a coleta de um source específico. |
+| `make sync-filters` | Sincroniza os filtros do TOML com o PostgreSQL. |
 | `make api` | Inicia a API FastAPI na porta 8088. |
 | `make cron` | Inicia o processo de execução agendada. |
 | `make frontend` | Inicia o frontend Vite na porta 5188. |
@@ -41,9 +42,10 @@ O projeto é um monólito modular com processos separados para API, cron e front
 | Module | Responsibility |
 | --- | --- |
 | `src/scrapers/` | Scrapers específicos e abstrações comuns dos portais. |
-| `src/search.py` | Orquestra fontes, filtros, deduplicação, geocoding e persistência. |
+| `src/search.py` | Orquestra fontes, filtros carregados do banco, deduplicação, geocoding e persistência. |
 | `src/geocoding.py` | Enriquece os imóveis com latitude e longitude e mantém cache local. |
-| `src/db.py` | Schema PostgreSQL, upsert e consultas de imóveis. |
+| `src/db.py` | Schema PostgreSQL, filtros, upsert e consultas de imóveis. |
+| `src/sync_filters.py` | Sincroniza a configuração TOML com a tabela de filtros. |
 | `src/application/` | Serviços de aplicação compartilhados pela API e pelo cron. |
 | `src/api/` | Rotas HTTP, contratos e modelos de resposta. |
 | `src/cron.py` | Worker que agenda a execução do serviço de aplicação. |

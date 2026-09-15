@@ -54,6 +54,41 @@ CREATE INDEX IF NOT EXISTS properties_portal_idx ON properties (portal);
 CREATE INDEX IF NOT EXISTS properties_price_idx ON properties (price);
 CREATE INDEX IF NOT EXISTS properties_bedrooms_idx ON properties (bedrooms);
 CREATE INDEX IF NOT EXISTS properties_last_seen_idx ON properties (last_seen_at);
+
+CREATE TABLE IF NOT EXISTS search_filters (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(80) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    city VARCHAR(120),
+    state VARCHAR(2),
+    neighborhoods JSONB NOT NULL DEFAULT '[]'::jsonb,
+    property_type VARCHAR(80),
+    purpose VARCHAR(40),
+    bedrooms_min SMALLINT,
+    max_price NUMERIC(14, 2),
+    max_pages INTEGER NOT NULL DEFAULT 1,
+    max_properties_per_source INTEGER NOT NULL DEFAULT 5,
+    output_file TEXT NOT NULL DEFAULT 'imoveis_filtrados.json',
+    sources JSONB NOT NULL DEFAULT '[]'::jsonb,
+    geocoding_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    geocoding_max_requests INTEGER NOT NULL DEFAULT 4,
+    geocoding_min_interval_seconds NUMERIC(8, 2) NOT NULL DEFAULT 15.0,
+    raw_config JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT search_filters_name_key UNIQUE (name),
+    CONSTRAINT search_filters_state_length CHECK (state IS NULL OR char_length(state) = 2),
+    CONSTRAINT search_filters_non_negative CHECK (
+        (bedrooms_min IS NULL OR bedrooms_min >= 0) AND
+        (max_price IS NULL OR max_price >= 0) AND
+        max_pages > 0 AND
+        max_properties_per_source > 0 AND
+        geocoding_max_requests >= 0 AND
+        geocoding_min_interval_seconds >= 0
+    )
+);
+
+CREATE INDEX IF NOT EXISTS search_filters_active_idx ON search_filters (active);
 """
 
 
@@ -192,6 +227,78 @@ def ensure_schema() -> None:
         with connection.cursor() as cursor:
             cursor.execute(SCHEMA_SQL)
         connection.commit()
+
+
+def upsert_search_filters(filters: Dict[str, Any], name: str = "default") -> None:
+    ensure_schema()
+    with psycopg.connect(database_url()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO search_filters (
+                    name, active, city, state, neighborhoods, property_type, purpose,
+                    bedrooms_min, max_price, max_pages, max_properties_per_source,
+                    output_file, sources, geocoding_enabled, geocoding_max_requests,
+                    geocoding_min_interval_seconds, raw_config
+                ) VALUES (
+                    %s, TRUE, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s
+                )
+                ON CONFLICT (name) DO UPDATE SET
+                    active = TRUE,
+                    city = EXCLUDED.city,
+                    state = EXCLUDED.state,
+                    neighborhoods = EXCLUDED.neighborhoods,
+                    property_type = EXCLUDED.property_type,
+                    purpose = EXCLUDED.purpose,
+                    bedrooms_min = EXCLUDED.bedrooms_min,
+                    max_price = EXCLUDED.max_price,
+                    max_pages = EXCLUDED.max_pages,
+                    max_properties_per_source = EXCLUDED.max_properties_per_source,
+                    output_file = EXCLUDED.output_file,
+                    sources = EXCLUDED.sources,
+                    geocoding_enabled = EXCLUDED.geocoding_enabled,
+                    geocoding_max_requests = EXCLUDED.geocoding_max_requests,
+                    geocoding_min_interval_seconds = EXCLUDED.geocoding_min_interval_seconds,
+                    raw_config = EXCLUDED.raw_config,
+                    updated_at = NOW()
+                """,
+                (
+                    name,
+                    filters.get("city"),
+                    filters.get("state"),
+                    Jsonb(filters.get("neighborhoods", [])),
+                    filters.get("property_type"),
+                    filters.get("purpose"),
+                    filters.get("bedrooms_min"),
+                    filters.get("max_price"),
+                    filters.get("max_pages", 1),
+                    filters.get("max_properties_per_source", 5),
+                    filters.get("output_file", "imoveis_filtrados.json"),
+                    Jsonb(filters.get("sources", [])),
+                    filters.get("geocoding_enabled", False),
+                    filters.get("geocoding_max_requests", 4),
+                    filters.get("geocoding_min_interval_seconds", 15.0),
+                    Jsonb(filters),
+                ),
+            )
+        connection.commit()
+
+
+def get_search_filters(name: str = "default") -> Optional[Dict[str, Any]]:
+    ensure_schema()
+    with psycopg.connect(database_url(), row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT raw_config
+                FROM search_filters
+                WHERE name = %s AND active = TRUE
+                """,
+                (name,),
+            )
+            row = cursor.fetchone()
+    return row["raw_config"] if row else None
 
 
 def list_properties(
