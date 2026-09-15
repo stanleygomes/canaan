@@ -61,7 +61,7 @@ class ListingPortalScraper:
                     const links = [...document.querySelectorAll('a')].filter(a =>
                         patterns.some(pattern => a.href.includes(pattern))
                     );
-                    elements = links.map(a => a.closest('article, li, [data-testid], [data-qa]') || a.parentElement);
+                    elements = links.map(a => a.closest('article, li, [data-testid], [data-qa], [class*="card"], [class*="item"]') || a.parentElement);
                 }
                 return [...new Set(elements)].map(element => {
                     const link = element.querySelector('a[href]') || (element.tagName === 'A' ? element : null);
