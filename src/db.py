@@ -1,6 +1,7 @@
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import psycopg
+from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from .settings import get_settings
@@ -176,6 +177,94 @@ def normalized_property(item: Dict[str, Any]) -> Dict[str, Any]:
         "collected_at": item.get("collected_at"),
         "raw_payload": Jsonb(item),
     }
+
+
+PROPERTY_COLUMNS = """
+    id, portal, url, title, description, price, condominium_fee, iptu_fee,
+    currency, property_type, bedrooms, suites, bathrooms, garages,
+    useful_area_m2, total_area_m2, address, geo, advertiser, amenities,
+    images, collected_at, first_seen_at, last_seen_at
+"""
+
+
+def ensure_schema() -> None:
+    with psycopg.connect(database_url()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(SCHEMA_SQL)
+        connection.commit()
+
+
+def list_properties(
+    *,
+    page: int,
+    page_size: int,
+    portal: Optional[str] = None,
+    city: Optional[str] = None,
+    neighborhood: Optional[str] = None,
+    price_max: Optional[float] = None,
+    bedrooms_min: Optional[int] = None,
+    bbox: Optional[Tuple[float, float, float, float]] = None,
+) -> Dict[str, Any]:
+    ensure_schema()
+    where: List[str] = []
+    params: List[Any] = []
+
+    if portal:
+        where.append("portal = %s")
+        params.append(portal)
+    if city:
+        where.append("address->>'locality' ILIKE %s")
+        params.append(f"%{city}%")
+    if neighborhood:
+        where.append("address->>'locality' ILIKE %s")
+        params.append(f"%{neighborhood}%")
+    if price_max is not None:
+        where.append("price <= %s")
+        params.append(price_max)
+    if bedrooms_min is not None:
+        where.append("bedrooms >= %s")
+        params.append(bedrooms_min)
+    if bbox:
+        min_lat, min_lon, max_lat, max_lon = bbox
+        where.append(
+            "NULLIF(geo->>'latitude', '')::double precision BETWEEN %s AND %s"
+        )
+        params.extend([min_lat, max_lat])
+        where.append(
+            "NULLIF(geo->>'longitude', '')::double precision BETWEEN %s AND %s"
+        )
+        params.extend([min_lon, max_lon])
+
+    predicate = f"WHERE {' AND '.join(where)}" if where else ""
+    offset = (page - 1) * page_size
+
+    with psycopg.connect(database_url(), row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT COUNT(*) AS total FROM properties {predicate}", params)
+            total = cursor.fetchone()["total"]
+            cursor.execute(
+                f"""
+                SELECT {PROPERTY_COLUMNS}
+                FROM properties
+                {predicate}
+                ORDER BY last_seen_at DESC, id DESC
+                LIMIT %s OFFSET %s
+                """,
+                [*params, page_size, offset],
+            )
+            items = cursor.fetchall()
+    return {"items": items, "total": total}
+
+
+def get_property(property_id: int) -> Optional[Dict[str, Any]]:
+    ensure_schema()
+    with psycopg.connect(database_url(), row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {PROPERTY_COLUMNS} FROM properties WHERE id = %s",
+                (property_id,),
+            )
+            return cursor.fetchone()
 
 
 def save_properties(properties: Iterable[Dict[str, Any]]) -> int:
