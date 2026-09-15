@@ -10,6 +10,12 @@ O objetivo do projeto é monitorar ofertas de imóveis na web de forma automatiz
 
 ---
 
+## 🔎 Metodologia de coleta
+
+Cada scraper acessa uma URL de busca configurada usando Playwright em navegador headless, percorre as páginas definidas, identifica os anúncios disponíveis e extrai seus dados visíveis — como título, preço, área, quartos, vagas, localização, imagens e descrição — usando seletores específicos de cada portal e funções de normalização para valores monetários e numéricos; ao final, os registros são padronizados no mesmo formato e salvos em arquivos JSON para posterior consulta, análise ou persistência em banco de dados.
+
+---
+
 ## 🚀 Funcionalidades
 
 ### 1. Coleta e Scraping Automatizado

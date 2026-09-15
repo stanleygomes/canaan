@@ -3,7 +3,7 @@
 # Backend API: 8088
 # Frontend: 5188
 
-.PHONY: help install db-up db-down db-logs scrape-chaves scrape-vivareal scrape-zap scrape-olx scrape-all backend frontend
+.PHONY: help install db-up db-down db-logs scrape-chaves scrape-vivareal scrape-zap scrape-olx scrape-imovelweb scrape-quintoandar scrape-mercadolivre scrape-loft scrape-all backend frontend
 
 help:
 	@echo "Comandos disponiveis:"
@@ -15,6 +15,10 @@ help:
 	@echo "  make scrape-vivareal   - Executa o scraper do Viva Real"
 	@echo "  make scrape-zap        - Executa o scraper do ZAP Imoveis"
 	@echo "  make scrape-olx        - Executa o scraper da OLX"
+	@echo "  make scrape-imovelweb  - Executa o scraper do Imovelweb"
+	@echo "  make scrape-quintoandar - Executa o scraper do QuintoAndar"
+	@echo "  make scrape-mercadolivre - Executa o scraper do Mercado Livre Imóveis"
+	@echo "  make scrape-loft       - Executa o scraper da Loft"
 	@echo "  make scrape-all        - Executa todos os scrapers sequencialmente"
 	@echo "  make backend           - Inicia o backend FastAPI na porta 8088 (futuro)"
 	@echo "  make frontend          - Inicia o frontend React na porta 5188 (futuro)"
@@ -44,7 +48,19 @@ scrape-zap:
 scrape-olx:
 	uv run python -m src.scrapers.olx
 
-scrape-all: scrape-chaves scrape-vivareal scrape-zap scrape-olx
+scrape-imovelweb:
+	uv run python -m src.scrapers.imovelweb
+
+scrape-quintoandar:
+	uv run python -m src.scrapers.quintoandar
+
+scrape-mercadolivre:
+	uv run python -m src.scrapers.mercadolivre
+
+scrape-loft:
+	uv run python -m src.scrapers.loft
+
+scrape-all: scrape-chaves scrape-vivareal scrape-zap scrape-olx scrape-imovelweb scrape-quintoandar scrape-mercadolivre scrape-loft
 
 backend:
 	uv run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8088
