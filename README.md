@@ -28,13 +28,15 @@ Antes da coleta, suba o banco com `make db-up`. A conexão pode ser sobrescrita 
 
 ### API e execução agendada
 
-Copie `.env.example` para `.env` e ajuste `SCRAPE_CRON` conforme necessário. Inicie a API com `make backend` e o processo agendador separado com `make cron`.
+Copie `.env.example` para `.env` e ajuste `SCRAPE_CRON` conforme necessário. Inicie a API com `make api` e o processo agendador separado com `make cron`.
 
 - `POST /api/v1/scrape-runs` inicia uma coleta manual. Corpo opcional: `{ "source": "olx" }`.
 - `GET /api/v1/scrape-runs/{run_id}` consulta o estado da coleta.
 - `GET /health` verifica se a API está disponível.
 
 API e cron chamam o mesmo serviço de aplicação e compartilham um lock advisory do PostgreSQL, evitando duas coletas simultâneas.
+
+Durante a coleta, os endereços sem coordenadas são enviados ao geocoder configurado em `GEOCODING_URL`. O resultado é salvo em `geo` e também em `data/geocode_cache.json`. O padrão usa Nominatim com limite conservador de requisições; para produção ou volume maior, configure um provedor próprio/comercial compatível com sua demanda. O mapa deverá exibir a atribuição exigida pelo provedor.
 
 ### 1. Coleta e Scraping Automatizado
 - **Parâmetros pré-configurados**: filtros de busca definidos (localização, faixa de preço, tipo de imóvel, número de quartos, etc.).

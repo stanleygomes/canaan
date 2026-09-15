@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 from urllib.parse import quote
 
 from .db import save_properties
+from .geocoding import NominatimGeocoder
 from .scrapers.chavesnamao import ChavesNaMaoScraper
 from .scrapers.imobiliarias_uberlandia import AGENCIES
 from .scrapers.imovelweb import ImovelWebScraper
@@ -123,11 +124,23 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
         raise SystemExit(f"Source desconhecido ou não configurado: {source}")
 
     (ROOT / "data").mkdir(exist_ok=True)
+    geocoder = NominatimGeocoder(
+        enabled=filters.get("geocoding_enabled", False),
+        max_requests=filters.get("geocoding_max_requests", 4),
+        min_interval_seconds=filters.get("geocoding_min_interval_seconds", 15.0),
+    )
     all_properties: List[Dict[str, Any]] = []
     for name in selected:
         print(f"\n### Source: {name} ###")
         try:
             properties = await collect_source(name, available[name], filters)
+            geocoded = await geocoder.enrich(
+                properties,
+                city=str(filters.get("city", "")),
+                state=str(filters.get("state", "")),
+            )
+            if geocoded:
+                print(f"    {geocoded} imóveis geocodificados.")
             matched = [item for item in properties if matches_filters(item, filters)]
             print(f"    {len(matched)} imóveis passaram pelos filtros.")
             all_properties.extend(matched)

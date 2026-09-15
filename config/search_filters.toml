@@ -11,6 +11,9 @@ max_pages = 1
 max_properties_per_source = 30
 output_file = "imoveis_filtrados.json"
 persist_database = true
+geocoding_enabled = true
+geocoding_max_requests = 4
+geocoding_min_interval_seconds = 15.0
 
 # Use "all" para consultar todos os sources ou informe um source no Make:
 # make scrape SOURCE=olx
