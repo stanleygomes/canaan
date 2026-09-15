@@ -10,7 +10,9 @@ const initialFilters: PropertyListParams = { page: 1, page_size: 24, sort_by: 'l
 export function PropertiesPage() {
   const [filters, setFilters] = useState<PropertyListParams>(initialFilters)
   const [selectedId, setSelectedId] = useState<number>()
-  const query = useQuery({ queryKey: ['properties', filters], queryFn: () => listProperties(filters) })
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const queryFilters = viewMode === 'map' ? { ...filters, page: 1, page_size: 100 } : filters
+  const query = useQuery({ queryKey: ['properties', queryFilters], queryFn: () => listProperties(queryFilters) })
   const properties = query.data?.items ?? []
   const selected = useMemo(() => properties.find((item) => item.id === selectedId), [properties, selectedId])
 
@@ -26,7 +28,17 @@ export function PropertiesPage() {
           <h1 className="text-4xl font-semibold tracking-[-0.04em] text-slate-950 lg:text-5xl">Encontre seu próximo imóvel.</h1>
           <p className="mt-3 max-w-xl text-base leading-7 text-slate-500">Anúncios reunidos em um só lugar, com filtros simples e uma visão clara do que importa.</p>
         </div>
-        <p className="text-sm text-slate-500">{query.data?.total ?? 0} imóveis cadastrados</p>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-slate-500">{query.data?.total ?? 0} imóveis cadastrados</p>
+          <div className="flex rounded-full border border-slate-200 bg-white p-1 text-sm font-semibold">
+            <button type="button" className={`rounded-full px-4 py-2 transition ${viewMode === 'list' ? 'bg-slate-950 text-white' : 'text-slate-500 hover:text-slate-950'}`} onClick={() => setViewMode('list')}>
+              Lista
+            </button>
+            <button type="button" className={`rounded-full px-4 py-2 transition ${viewMode === 'map' ? 'bg-slate-950 text-white' : 'text-slate-500 hover:text-slate-950'}`} onClick={() => setViewMode('map')}>
+              Mapa
+            </button>
+          </div>
+        </div>
       </section>
 
       <div className="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-6">
@@ -46,8 +58,16 @@ export function PropertiesPage() {
         </select>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(520px,1.1fr)]">
-        <section>
+      {viewMode === 'map' ? (
+        <section className="space-y-4">
+          <div className="h-[calc(100vh-19rem)] min-h-[520px] rounded-2xl border border-slate-200 bg-white p-2">
+            <PropertyMap properties={properties} selectedId={selectedId} onSelect={setSelectedId} />
+          </div>
+          <p className="text-sm text-slate-500">Os marcadores exibem apenas imóveis com coordenadas geográficas.</p>
+        </section>
+      ) : (
+        <div className="grid gap-6">
+          <section>
           {query.isLoading && <p className="py-12 text-center text-slate-500">Carregando imóveis...</p>}
           {query.isError && <p className="rounded-2xl bg-rose-50 p-5 text-sm text-rose-700">Não foi possível carregar os imóveis.</p>}
           {!query.isLoading && !query.isError && properties.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">Nenhum imóvel encontrado com esses filtros.</p>}
@@ -58,11 +78,9 @@ export function PropertiesPage() {
               </a>
             ))}
           </div>
-        </section>
-        <aside className="sticky top-6 hidden h-[calc(100vh-8rem)] min-h-[520px] xl:block">
-          <PropertyMap properties={properties} selectedId={selectedId} onSelect={setSelectedId} />
-        </aside>
-      </div>
+          </section>
+        </div>
+      )}
     </div>
   )
 }
