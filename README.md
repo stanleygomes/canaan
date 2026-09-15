@@ -10,6 +10,61 @@ O objetivo do projeto é monitorar ofertas de imóveis na web de forma automatiz
 
 Os imóveis são persistidos na tabela PostgreSQL `properties`. O contrato possui campos tipados para os dados comuns e campos `JSONB` para endereço, anunciante, geolocalização, comodidades, imagens e o payload original. A chave única `(portal, url)` permite atualizar anúncios já conhecidos sem criar duplicatas.
 
+## 🛠️ Subir o projeto localmente
+
+### Pré-requisitos
+
+- Python 3.14 ou superior;
+- [`uv`](https://docs.astral.sh/uv/);
+- Node.js e npm;
+- Docker e Docker Compose.
+
+### Instalação
+
+Na raiz do projeto:
+
+```bash
+cp .env.example .env
+make install
+make db-up
+make sync-filters
+```
+
+Configure também o frontend:
+
+```bash
+cp frontend/.env.example frontend/.env
+cd frontend
+npm install
+cd ..
+```
+
+O `.env` da raiz configura banco, API, cron e geocoding. O `frontend/.env` configura a URL da API.
+
+### Executar os processos
+
+Abra terminais separados na raiz do projeto:
+
+```bash
+make api       # API em http://localhost:8088
+make cron      # worker agendado conforme SCRAPE_CRON
+make frontend  # frontend em http://localhost:5188
+```
+
+Para executar uma coleta manual diretamente:
+
+```bash
+make scrape
+```
+
+Verifique a API em `http://localhost:8088/health` e a documentação OpenAPI em `http://localhost:8088/docs`.
+
+Para parar o banco local:
+
+```bash
+make db-down
+```
+
 ---
 
 ## 🔎 Metodologia de coleta
