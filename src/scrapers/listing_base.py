@@ -4,7 +4,7 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
@@ -187,7 +187,14 @@ class ListingPortalScraper:
             logger.opt(exception=error).warning("⚠️ Não foi possível enriquecer {}", item.get("url"))
         return item
 
-    async def run(self, search_url: Optional[str] = None, max_pages: int = 1, max_properties: int = 5, output_file: Optional[str] = None):
+    async def run(
+        self,
+        search_url: Optional[str] = None,
+        max_pages: int = 1,
+        max_properties: int = 5,
+        output_file: Optional[str] = None,
+        on_item: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None,
+    ):
         search_url = search_url or self.config.default_url
         output_file = output_file or f"{self.config.portal}_imoveis.json"
         logger.info("🚀 Iniciando scraping: {}", self.config.portal)
@@ -209,7 +216,11 @@ class ListingPortalScraper:
                     for card in cards:
                         if not card.get("bedrooms") or not card.get("price"):
                             await self.enrich_from_detail(page, card)
-                    results.extend(cards[: max_properties - len(results)])
+                    new_items = cards[: max_properties - len(results)]
+                    results.extend(new_items)
+                    if on_item:
+                        for item in new_items:
+                            await on_item(item)
                 except Exception as error:
                     logger.opt(exception=error).error("❌ Erro ao carregar listagem de {}", self.config.portal)
                 if len(results) >= max_properties:

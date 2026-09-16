@@ -2,7 +2,7 @@ import asyncio
 import json
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
 from ..logger import logger
@@ -146,6 +146,7 @@ class OLXScraper:
         max_pages: int = 1,
         max_properties: int = 5,
         output_file: str = "olx_imoveis.json",
+        on_item: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None,
     ) -> List[Dict[str, Any]]:
         """Orquestra a coleta de imóveis da OLX."""
         logger.info("🚀 Iniciando scraping OLX | URL: {} | páginas: {} | limite: {}", search_url, max_pages, max_properties)
@@ -184,6 +185,8 @@ class OLXScraper:
 
                 for c in cards:
                     all_properties.append(c)
+                    if on_item:
+                        await on_item(c)
                     if len(all_properties) >= max_properties:
                         break
 

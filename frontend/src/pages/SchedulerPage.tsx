@@ -42,6 +42,7 @@ export function SchedulerPage() {
         <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 md:grid-cols-2">
           <label className="label">Cidade<input className="field mt-2" value={filters.city} onChange={(event) => setField('city', event.target.value)} /></label>
           <label className="label">Estado<input className="field mt-2" maxLength={2} value={filters.state} onChange={(event) => setField('state', event.target.value.toUpperCase())} /></label>
+          <label className="label">Finalidade<select className="field mt-2" value={filters.purpose} onChange={(event) => setField('purpose', event.target.value)}><option value="sale">Compra</option><option value="rent">Aluguel</option></select></label>
           <label className="label md:col-span-2">Bairros <span className="font-normal text-slate-400">separados por vírgula</span><input className="field mt-2" value={filters.neighborhoods.join(', ')} onChange={(event) => setField('neighborhoods', splitList(event.target.value))} /></label>
           <label className="label">Preço máximo<input className="field mt-2" type="number" value={filters.max_price ?? ''} onChange={(event) => setField('max_price', event.target.value ? Number(event.target.value) : null)} /></label>
           <label className="label">Quartos mínimos<input className="field mt-2" type="number" min={0} value={filters.bedrooms_min ?? ''} onChange={(event) => setField('bedrooms_min', event.target.value ? Number(event.target.value) : null)} /></label>

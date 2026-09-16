@@ -8,10 +8,6 @@ from .settings import get_settings
 from .logger import logger
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logger = logging.getLogger(__name__)
-
-
 async def scheduled_scrape() -> None:
     try:
         run = await scrape_service.start()

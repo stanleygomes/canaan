@@ -2,7 +2,7 @@ import asyncio
 import json
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from ..logger import logger
 from .rate_limiter import navigate_with_rate_limit
@@ -235,6 +235,7 @@ class ChavesNaMaoScraper:
         max_pages: int = 1,
         max_properties: int = 3,
         output_file: str = "chavesnamao_imoveis.json",
+        on_item: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None,
     ) -> List[Dict[str, Any]]:
         """Orquestra a busca, coleta os detalhes de cada imóvel e salva em JSON."""
         logger.info("🚀 Iniciando scraping Chaves na Mão | URL: {} | páginas: {} | limite: {}", search_url, max_pages, max_properties)
@@ -262,6 +263,8 @@ class ChavesNaMaoScraper:
                 item = await self.extract_detail(page, prop_url)
                 if item:
                     results.append(item)
+                    if on_item:
+                        await on_item(item)
                     logger.info("✅ {} | R$ {} | {}m² | {} quartos | {} vagas | {} fotos", item['title'][:55], item['price'], item['useful_area_m2'], item['bedrooms'], item['garages'], len(item['images']))
 
                 await asyncio.sleep(1)

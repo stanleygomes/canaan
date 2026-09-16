@@ -2,7 +2,7 @@ import asyncio
 import json
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
@@ -141,6 +141,7 @@ class ImovelWebScraper:
         max_pages: int = 1,
         max_properties: int = 5,
         output_file: str = "imovelweb_imoveis.json",
+        on_item: Optional[Callable[[Dict[str, Any]], Awaitable[None]]] = None,
     ) -> List[Dict[str, Any]]:
         logger.info("🚀 Iniciando scraping Imovelweb | URL: {} | páginas: {} | limite: {}", search_url, max_pages, max_properties)
         results = []
@@ -176,7 +177,11 @@ class ImovelWebScraper:
 
                 cards = await self.extract_listing_cards(page)
                 logger.info("📦 {} imóveis extraídos da página {} do Imovelweb", len(cards), page_number)
-                results.extend(cards[: max_properties - len(results)])
+                new_items = cards[: max_properties - len(results)]
+                results.extend(new_items)
+                if on_item:
+                    for item in new_items:
+                        await on_item(item)
                 if len(results) >= max_properties:
                     break
 

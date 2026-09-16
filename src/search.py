@@ -4,6 +4,7 @@ import os
 import sys
 import tomllib
 import unicodedata
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import quote
@@ -31,16 +32,19 @@ def load_config() -> Dict[str, Any]:
         return tomllib.load(config_file)["search"]
 
 
-def uberlandia_urls() -> Dict[str, str]:
+def uberlandia_urls(purpose: str = "sale") -> Dict[str, str]:
+    transaction = "aluguel" if purpose == "rent" else "venda"
+    quintoandar_transaction = "alugar" if purpose == "rent" else "comprar"
+    chaves_transaction = "para-alugar" if purpose == "rent" else "a-venda"
     return {
-        "chavesnamao": "https://www.chavesnamao.com.br/apartamentos-a-venda/mg-uberlandia/",
-        "vivareal": "https://www.vivareal.com.br/venda/minas-gerais/uberlandia/apartamento_residencial/",
-        "zapimoveis": "https://www.zapimoveis.com.br/venda/apartamentos/mg+uberlandia/",
-        "olx": "https://www.olx.com.br/imoveis/venda/apartamentos/estado-mg/uberlandia",
-        "imovelweb": "https://www.imovelweb.com.br/apartamentos-venda-uberlandia-mg.html",
-        "quintoandar": "https://www.quintoandar.com.br/comprar/imovel/uberlandia-mg-brasil/apartamento",
-        "mercadolivre": "https://lista.mercadolivre.com.br/venda-apartamento-uberlandia",
-        "loft": "https://loft.com.br/venda/apartamentos/mg/uberlandia",
+        "chavesnamao": f"https://www.chavesnamao.com.br/apartamentos-{chaves_transaction}/mg-uberlandia/",
+        "vivareal": f"https://www.vivareal.com.br/{transaction}/minas-gerais/uberlandia/apartamento_residencial/",
+        "zapimoveis": f"https://www.zapimoveis.com.br/{transaction}/apartamentos/mg+uberlandia/",
+        "olx": f"https://www.olx.com.br/imoveis/{transaction}/apartamentos/estado-mg/uberlandia",
+        "imovelweb": f"https://www.imovelweb.com.br/apartamentos-{transaction}-uberlandia-mg.html",
+        "quintoandar": f"https://www.quintoandar.com.br/{quintoandar_transaction}/imovel/uberlandia-mg-brasil/apartamento",
+        "mercadolivre": f"https://lista.mercadolivre.com.br/{transaction}-apartamento-uberlandia",
+        "loft": f"https://loft.com.br/{transaction}/apartamentos/mg/uberlandia",
     }
 
 
@@ -86,12 +90,14 @@ def matches_filters(property_data: Dict[str, Any], filters: Dict[str, Any]) -> b
     if property_type and property_type not in text and property_type not in str(property_data.get("property_type", "")).lower():
         return False
 
-    bedrooms_min = filters.get("bedrooms_min")
-    if bedrooms_min is not None and (property_data.get("bedrooms") or 0) < bedrooms_min:
+    bedrooms_min = _as_decimal(filters.get("bedrooms_min"))
+    bedrooms = _as_decimal(property_data.get("bedrooms")) or Decimal("0")
+    if bedrooms_min is not None and bedrooms < bedrooms_min:
         return False
 
-    max_price = filters.get("max_price")
-    if max_price is not None and (property_data.get("price") is None or property_data["price"] > max_price):
+    max_price = _as_decimal(filters.get("max_price"))
+    price = _as_decimal(property_data.get("price"))
+    if max_price is not None and (price is None or price > max_price):
         return False
 
     city = unicodedata.normalize("NFKD", str(filters.get("city", "")).lower())
@@ -102,8 +108,22 @@ def matches_filters(property_data: Dict[str, Any], filters: Dict[str, Any]) -> b
     return True
 
 
-async def collect_source(name: str, scraper: Any, filters: Dict[str, Any]) -> List[Dict[str, Any]]:
-    urls = uberlandia_urls()
+def _as_decimal(value: Any) -> Decimal | None:
+    if value is None or value == "":
+        return None
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+
+
+async def collect_source(
+    name: str,
+    scraper: Any,
+    filters: Dict[str, Any],
+    on_item: Any = None,
+) -> List[Dict[str, Any]]:
+    urls = uberlandia_urls(str(filters.get("purpose", "sale")))
     kwargs = {
         "max_pages": filters.get("max_pages", 1),
         "max_properties": filters.get("max_properties_per_source", 5),
@@ -111,6 +131,8 @@ async def collect_source(name: str, scraper: Any, filters: Dict[str, Any]) -> Li
     }
     if name in urls:
         kwargs["search_url"] = urls[name]
+    if on_item:
+        kwargs["on_item"] = on_item
     return await scraper.run(**kwargs)
 
 
@@ -139,8 +161,21 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
     all_properties: List[Dict[str, Any]] = []
     for name in selected:
         logger.info("🔎 Iniciando source: {}", name)
+
+        async def persist_item(item: Dict[str, Any]) -> None:
+            if not matches_filters(item, filters) or not filters.get("persist_database", True):
+                return
+            try:
+                await asyncio.to_thread(save_properties, [item])
+                logger.debug("💾 Imóvel persistido durante a coleta: {}", item.get("url"))
+            except Exception as error:
+                logger.opt(exception=error).warning(
+                    "⚠️ Não foi possível persistir o imóvel durante a coleta: {}",
+                    item.get("url"),
+                )
+
         try:
-            properties = await collect_source(name, available[name], filters)
+            properties = await collect_source(name, available[name], filters, persist_item)
             geocoded = await geocoder.enrich(
                 properties,
                 city=str(filters.get("city", "")),
