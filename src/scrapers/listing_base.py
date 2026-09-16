@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
 from ..logger import logger
+from .rate_limiter import navigate_with_rate_limit
 
 
 def clean_currency(value: Any) -> Optional[float]:
@@ -152,7 +153,7 @@ class ListingPortalScraper:
     async def enrich_from_detail(self, page: Page, item: Dict[str, Any]) -> Dict[str, Any]:
         """Completa campos que alguns portais só exibem na página do anúncio."""
         try:
-            await page.goto(item["url"], wait_until="domcontentloaded", timeout=45000)
+            await navigate_with_rate_limit(page, item["url"], self.config.portal)
             await page.wait_for_timeout(700)
             lines = await page.locator("body").evaluate(
                 "body => body.innerText.split('\\n').map(x => x.trim()).filter(Boolean)"
@@ -201,7 +202,7 @@ class ListingPortalScraper:
                 url = search_url if number == 1 else f"{search_url}{separator}{self.config.page_parameter}={number}"
                 logger.info("🌐 Acessando {} página {}: {}", self.config.portal, number, url)
                 try:
-                    await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                    await navigate_with_rate_limit(page, url, self.config.portal)
                     await page.wait_for_timeout(2500)
                     cards = await self.extract_cards(page)
                     logger.info("📦 {} imóveis extraídos de {}", len(cards), self.config.portal)

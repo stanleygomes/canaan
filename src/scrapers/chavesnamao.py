@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from ..logger import logger
+from .rate_limiter import navigate_with_rate_limit
 
 
 def clean_currency(val: Any) -> Optional[float]:
@@ -66,7 +67,7 @@ class ChavesNaMaoScraper:
         """Acessa a página de detalhes de um imóvel e extrai todos os dados."""
         logger.info("🌐 Acessando detalhe Chaves na Mão: {}", url)
         try:
-            await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+            await navigate_with_rate_limit(page, url, "chavesnamao")
             await page.wait_for_timeout(1500)
         except Exception as e:
             logger.opt(exception=e).error("❌ Erro ao carregar detalhe Chaves na Mão: {}", url)
@@ -205,7 +206,7 @@ class ChavesNaMaoScraper:
             logger.info("🔗 Coletando links Chaves na Mão página {}: {}", pg, url)
 
             try:
-                await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                await navigate_with_rate_limit(page, url, "chavesnamao")
                 await page.wait_for_timeout(2000)
             except Exception as e:
                 logger.opt(exception=e).error("❌ Erro ao carregar busca Chaves na Mão: {}", url)

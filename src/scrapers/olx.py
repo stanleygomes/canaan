@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
 from ..logger import logger
+from .rate_limiter import navigate_with_rate_limit
 
 
 def clean_currency(val: Any) -> Optional[float]:
@@ -172,7 +173,7 @@ class OLXScraper:
                 logger.info("🌐 Acessando OLX página {}: {}", pg, url)
 
                 try:
-                    await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                    await navigate_with_rate_limit(page, url, "olx")
                     await page.wait_for_timeout(2500)
                 except Exception as e:
                     logger.opt(exception=e).error("❌ Erro ao carregar listagem OLX: {}", url)

@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
 from ..logger import logger
+from .rate_limiter import navigate_with_rate_limit
 
 
 def clean_currency(value: Any) -> Optional[float]:
@@ -161,7 +162,7 @@ class ImovelWebScraper:
                 url = search_url if page_number == 1 else f"{search_url.rstrip('/')}/?pagina={page_number}"
                 logger.info("🌐 Acessando Imovelweb página {}: {}", page_number, url)
                 try:
-                    await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                    await navigate_with_rate_limit(page, url, "imovelweb")
                     await page.wait_for_timeout(2500)
                     page_text = (await page.locator("body").inner_text()).lower()
                     if "verificação de segurança" in page_text or "executando verificação" in page_text:
