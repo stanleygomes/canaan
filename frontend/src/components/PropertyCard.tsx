@@ -40,6 +40,8 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
   const address = addressParts(property)
   const amenities = property.amenities.map(textValue).filter(Boolean) as string[]
   const location = textValue(property.address.locality) ?? textValue(property.address.raw_text) ?? 'Localização não informada'
+  const neighborhood = textValue(property.address.locality) ?? textValue(property.address.raw_text)
+  const agency = textValue(property.advertiser.name)
   const previousImage = () => setCurrentImage((current) => (current - 1 + images.length) % images.length)
   const nextImage = () => setCurrentImage((current) => (current + 1) % images.length)
 
@@ -47,7 +49,6 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
     <article className={`group overflow-hidden rounded-[2rem] border-2 bg-white shadow-[5px_5px_0_#0f172a] transition hover:-translate-y-1 hover:shadow-[8px_8px_0_#0f172a] ${selected ? 'border-rose-500 ring-4 ring-rose-500/20' : 'border-slate-950'}`} onClick={onSelect}>
       <div className="relative aspect-[5/4] overflow-hidden bg-slate-100">
         {imageUrl ? <img src={imageUrl} alt={`${property.title || 'Imóvel'} - foto ${currentImage + 1}`} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center text-sm text-slate-400">Sem foto disponível</div>}
-        <span className="absolute left-4 top-4 rounded-xl border-2 border-slate-950 bg-white px-3 py-1.5 text-xs font-extrabold text-slate-950 shadow-[2px_2px_0_#0f172a]">{portalLabel(property.portal)}</span>
         {images.length > 1 && <>
           <button type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); previousImage() }} className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-slate-950 bg-white text-xl font-extrabold text-slate-950 shadow-[2px_2px_0_#0f172a] transition hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-300">‹</button>
           <button type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); nextImage() }} className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-slate-950 bg-white text-xl font-extrabold text-slate-950 shadow-[2px_2px_0_#0f172a] transition hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-300">›</button>
@@ -57,7 +58,11 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
 
       <div className="space-y-5 p-5">
         <div>
-          <p className="text-sm font-extrabold uppercase tracking-wide text-rose-600">{location}</p>
+          <div className="flex flex-wrap gap-2">
+            {neighborhood && <span className="max-w-full truncate rounded-full border-2 border-rose-200 bg-rose-50 px-3 py-1 text-xs font-extrabold text-rose-800">Bairro · {neighborhood}</span>}
+            <span className="max-w-full truncate rounded-full border-2 border-slate-200 bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-800">Imobiliária · {agency ?? portalLabel(property.portal)}</span>
+          </div>
+          <p className="mt-3 text-sm font-extrabold uppercase tracking-wide text-slate-500">{location}</p>
           <h2 className="mt-2 line-clamp-2 text-2xl font-extrabold leading-7 tracking-[-0.04em] text-slate-950">{property.title || 'Imóvel sem título'}</h2>
           <div className="mt-4 rounded-2xl bg-slate-950 px-4 py-3 text-white"><p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-300">Preço anunciado</p><p className="mt-1 text-2xl font-extrabold tracking-[-0.04em]">{formatPrice(property.price, property.currency)}</p></div>
         </div>
