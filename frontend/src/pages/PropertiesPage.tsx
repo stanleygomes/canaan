@@ -15,6 +15,9 @@ export function PropertiesPage() {
   const query = useQuery({ queryKey: ['properties', queryFilters], queryFn: () => listProperties(queryFilters) })
   const properties = query.data?.items ?? []
   const selected = useMemo(() => properties.find((item) => item.id === selectedId), [properties, selectedId])
+  const currentPage = filters.page ?? 1
+  const pageSize = filters.page_size ?? 24
+  const totalPages = Math.max(1, Math.ceil((query.data?.total ?? 0) / pageSize))
 
   const updateFilter = (key: keyof PropertyListParams, value: string) => {
     setFilters((current) => ({ ...current, page: 1, [key]: value || undefined }))
@@ -78,6 +81,29 @@ export function PropertiesPage() {
               </a>
             ))}
           </div>
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-5">
+              <button
+                type="button"
+                className="button-secondary"
+                disabled={currentPage === 1 || query.isFetching}
+                onClick={() => setFilters((current) => ({ ...current, page: currentPage - 1 }))}
+              >
+                Anterior
+              </button>
+              <span className="text-sm text-slate-500">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                type="button"
+                className="button-secondary"
+                disabled={currentPage >= totalPages || query.isFetching}
+                onClick={() => setFilters((current) => ({ ...current, page: currentPage + 1 }))}
+              >
+                Próxima
+              </button>
+            </div>
+          )}
           </section>
         </div>
       )}
