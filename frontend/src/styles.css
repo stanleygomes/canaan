@@ -51,27 +51,66 @@ body {
 
 .button-primary,
 .button-secondary {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
   border-radius: 1rem;
+  border: 2px solid transparent;
   padding: 0.9rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 800;
-  transition: opacity 150ms ease, transform 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease, transform 150ms ease;
 }
 
 .button-primary {
+  border-color: #e11d48;
   background: #e11d48;
   color: #fff;
 }
 
 .button-secondary {
-  border: 1px solid #cbd5e1;
+  border-color: #0f172a;
   background: #fff;
   color: #0f172a;
 }
 
+.button-icon {
+  display: inline-flex;
+  height: 44px;
+  width: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0f172a;
+  border-radius: 1rem;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 #0f172a;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
 .button-primary:hover,
-.button-secondary:hover {
+.button-secondary:hover,
+.button-icon:hover {
   transform: translateY(-1px);
+}
+
+.button-primary:hover {
+  background: #be123c;
+}
+
+.button-secondary:hover,
+.button-icon:hover {
+  background: #fff1f2;
+}
+
+.button-primary:focus-visible,
+.button-secondary:focus-visible,
+.button-icon:focus-visible {
+  outline: 4px solid rgb(244 63 94 / 35%);
+  outline-offset: 2px;
 }
 
 button:disabled {

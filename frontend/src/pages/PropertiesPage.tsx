@@ -34,10 +34,10 @@ export function PropertiesPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 sm:justify-start sm:gap-4">
           <p className="text-sm text-slate-500">{query.data?.total ?? 0} imóveis cadastrados</p>
           <div className="flex rounded-full border border-slate-200 bg-white p-1 text-sm font-semibold">
-            <button type="button" className={`rounded-full px-4 py-2 transition ${viewMode === 'list' ? 'bg-slate-950 text-white' : 'text-slate-500 hover:text-slate-950'}`} onClick={() => setViewMode('list')}>
+            <button type="button" className={`button-secondary min-h-0 rounded-xl px-4 py-2 ${viewMode === 'list' ? 'border-slate-950 bg-slate-950 text-white hover:bg-slate-950' : 'border-transparent text-slate-500'}`} onClick={() => setViewMode('list')}>
               Lista
             </button>
-            <button type="button" className={`rounded-full px-4 py-2 transition ${viewMode === 'map' ? 'bg-slate-950 text-white' : 'text-slate-500 hover:text-slate-950'}`} onClick={() => setViewMode('map')}>
+            <button type="button" className={`button-secondary min-h-0 rounded-xl px-4 py-2 ${viewMode === 'map' ? 'border-slate-950 bg-slate-950 text-white hover:bg-slate-950' : 'border-transparent text-slate-500'}`} onClick={() => setViewMode('map')}>
               Mapa
             </button>
           </div>

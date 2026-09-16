@@ -50,8 +50,8 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
       <div className="relative aspect-[5/4] overflow-hidden bg-slate-100">
         {imageUrl ? <img src={imageUrl} alt={`${property.title || 'Imóvel'} - foto ${currentImage + 1}`} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center text-sm text-slate-400">Sem foto disponível</div>}
         {images.length > 1 && <>
-          <button type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); previousImage() }} className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-slate-950 bg-white text-xl font-extrabold text-slate-950 shadow-[2px_2px_0_#0f172a] transition hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-300">‹</button>
-          <button type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); nextImage() }} className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-slate-950 bg-white text-xl font-extrabold text-slate-950 shadow-[2px_2px_0_#0f172a] transition hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-300">›</button>
+          <button type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); previousImage() }} className="button-icon absolute left-4 top-1/2 -translate-y-1/2">‹</button>
+          <button type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); nextImage() }} className="button-icon absolute right-4 top-1/2 -translate-y-1/2">›</button>
           <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-xl border-2 border-slate-950 bg-slate-950/80 px-2 py-1.5">{images.slice(0, 6).map((_, index) => <button key={index} type="button" aria-label={`Ir para foto ${index + 1}`} onClick={(event) => { event.stopPropagation(); setCurrentImage(index) }} className={`h-2 rounded-full transition ${index === currentImage ? 'w-5 bg-white' : 'w-2 bg-white/60'}`} />)}</div>
         </>}
       </div>
@@ -73,7 +73,7 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
         {property.description && <div className="rounded-2xl bg-amber-100 p-4"><p className="text-[11px] font-extrabold uppercase tracking-wide text-amber-900">Sobre o imóvel</p><p className="mt-1 line-clamp-4 text-sm font-semibold leading-6 text-slate-900">{property.description}</p></div>}
         {amenities.length > 0 && <div><p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Características</p><p className="mt-1 text-sm font-semibold leading-6 text-slate-800">{amenities.join(' · ')}</p></div>}
         <dl className="grid grid-cols-2 gap-2"><Detail label="Anunciante" value={property.advertiser.name} /><Detail label="Coletado em" value={formatDate(property.collected_at)} /><Detail label="Visto pela primeira vez" value={formatDate(property.first_seen_at)} /><Detail label="Visto por último" value={formatDate(property.last_seen_at)} /></dl>
-        <a href={property.url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-rose-600 bg-rose-500 px-4 py-4 text-base font-extrabold text-white shadow-[3px_3px_0_#9f1239] transition hover:bg-rose-600 focus:outline-none focus:ring-4 focus:ring-rose-300">Abrir anúncio no {portalLabel(property.portal)} <span aria-hidden="true">↗</span></a>
+        <a href={property.url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="button-primary w-full gap-2">Abrir anúncio no {portalLabel(property.portal)} <span aria-hidden="true">↗</span></a>
       </div>
     </article>
   )
