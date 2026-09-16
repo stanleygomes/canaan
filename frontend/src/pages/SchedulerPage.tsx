@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getScrapeRun, startScrape, getSearchFilters, updateSearchFilters } from '../lib/api/search'
+import { getSearchFilters, updateSearchFilters } from '../lib/api/search'
 import type { SearchFilters } from '../lib/api/types'
 
 function splitList(value: string) {
@@ -11,14 +11,11 @@ export function SchedulerPage() {
   const queryClient = useQueryClient()
   const filtersQuery = useQuery({ queryKey: ['search-filters', 'default'], queryFn: () => getSearchFilters() })
   const [form, setForm] = useState<SearchFilters | null>(null)
-  const [runId, setRunId] = useState<string>()
   const filters = form ?? filtersQuery.data
   const saveMutation = useMutation({
     mutationFn: (payload: SearchFilters) => updateSearchFilters('default', payload),
     onSuccess: (data) => { setForm(data); queryClient.invalidateQueries({ queryKey: ['search-filters', 'default'] }) },
   })
-  const runMutation = useMutation({ mutationFn: () => startScrape(), onSuccess: (data) => setRunId(data.run_id) })
-  const runQuery = useQuery({ queryKey: ['scrape-run', runId], queryFn: () => getScrapeRun(runId!), enabled: Boolean(runId), refetchInterval: (query) => query.state.data?.status === 'running' ? 3000 : false })
 
   useEffect(() => {
     if (filtersQuery.data && !form) setForm(filtersQuery.data)
@@ -34,9 +31,9 @@ export function SchedulerPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-7 sm:px-6 sm:py-10 lg:px-10">
       <div className="mb-8">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">Automação</p>
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">Filtros</p>
         <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Configure sua busca.</h1>
-        <p className="mt-3 max-w-xl leading-7 text-slate-500">Essas regras controlam as próximas coletas automáticas. A listagem de imóveis possui filtros próprios.</p>
+        <p className="mt-3 max-w-xl leading-7 text-slate-500">Essas regras controlam as próximas coletas automáticas. Acompanhe e dispare execuções na tela de Integrações.</p>
       </div>
       <form className="space-y-6" onSubmit={(event) => { event.preventDefault(); saveMutation.mutate(filters) }}>
         <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 md:grid-cols-2">
@@ -50,12 +47,10 @@ export function SchedulerPage() {
           <label className="flex items-center gap-3 text-sm font-medium"><input type="checkbox" checked={filters.geocoding_enabled} onChange={(event) => setField('geocoding_enabled', event.target.checked)} /> Geocodificar anúncios sem coordenadas</label>
           <label className="label">Máximo de páginas<input className="field mt-2" type="number" min={1} value={filters.max_pages} onChange={(event) => setField('max_pages', Number(event.target.value))} /></label>
         </section>
-        <div className="flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="flex items-center justify-end">
           <button className="button-secondary w-full sm:w-auto" type="submit" disabled={saveMutation.isPending}>{saveMutation.isPending ? 'Salvando...' : 'Salvar configuração'}</button>
-          <button className="button-primary w-full sm:w-auto" type="button" disabled={runMutation.isPending || runQuery.data?.status === 'running'} onClick={() => runMutation.mutate()}>{runMutation.isPending ? 'Iniciando...' : '↻ Atualizar imóveis agora'}</button>
         </div>
       </form>
-      {runQuery.data && <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"><p className="text-sm font-semibold">Execução manual: <span className="text-slate-500">{runQuery.data.status}</span></p>{runQuery.data.properties_count !== null && <p className="mt-2 text-sm text-slate-500">{runQuery.data.properties_count} imóveis processados.</p>}{runQuery.data.error && <p className="mt-2 text-sm text-rose-600">{runQuery.data.error}</p>}</div>}
     </div>
   )
 }

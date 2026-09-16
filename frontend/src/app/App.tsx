@@ -20,13 +20,20 @@ export function App() {
               </NavLink>
               <nav className="flex items-center gap-1 text-xs font-medium text-slate-500 sm:gap-2 sm:text-sm">
                 <NavLink
-                  to="/"
+                  to="/imoveis"
                   className={({ isActive }) =>
                     `rounded-full px-3 py-2 transition sm:px-4 ${isActive ? 'bg-slate-950 text-white' : 'hover:bg-slate-100 hover:text-slate-950'}`
                   }
-                  end
                 >
                   Imóveis
+                </NavLink>
+                <NavLink
+                  to="/integracoes"
+                  className={({ isActive }) =>
+                    `rounded-full px-3 py-2 transition sm:px-4 ${isActive ? 'bg-slate-950 text-white' : 'hover:bg-slate-100 hover:text-slate-950'}`
+                  }
+                >
+                  Integrações
                 </NavLink>
                 <NavLink
                   to="/configuracoes"
@@ -34,7 +41,7 @@ export function App() {
                     `rounded-full px-3 py-2 transition sm:px-4 ${isActive ? 'bg-slate-950 text-white' : 'hover:bg-slate-100 hover:text-slate-950'}`
                   }
                 >
-                  Automação
+                  Filtros
                 </NavLink>
               </nav>
             </div>
