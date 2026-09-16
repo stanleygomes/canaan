@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import maplibregl, { type Map, type Marker } from 'maplibre-gl'
 import type { Property } from '../lib/api/types'
 
-const styleUrl = import.meta.env.VITE_MAP_STYLE_URL ?? 'https://demotiles.maplibre.org/style.json'
+const styleUrl = import.meta.env.VITE_MAP_STYLE_URL ?? 'https://tiles.openfreemap.org/styles/positron'
 
 export function PropertyMap({ properties, selectedId, onSelect }: { properties: Property[]; selectedId?: number; onSelect: (id: number) => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
