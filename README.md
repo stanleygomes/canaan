@@ -42,7 +42,7 @@ Para subir somente a API:
 make api
 ```
 
-O `.env` da raiz configura banco, API, cron e geocoding. O `frontend/.env` configura a URL da API.
+O `.env` da raiz configura banco, API, CORS, cron e geocoding. O padrão do cron é uma execução diária às 02:00 no fuso `America/Sao_Paulo`. O `frontend/.env` configura a URL da API. Para liberar mais origens, informe-as em `CORS_ORIGINS` separadas por vírgula.
 
 Para executar uma coleta manual diretamente:
 

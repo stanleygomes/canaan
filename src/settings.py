@@ -16,6 +16,7 @@ class Settings:
     api_port: int
     scrape_cron: str
     scrape_timezone: str
+    cors_origins: tuple[str, ...]
 
 
 def get_settings() -> Settings:
@@ -26,6 +27,13 @@ def get_settings() -> Settings:
         ),
         api_host=os.environ.get("API_HOST", "0.0.0.0"),
         api_port=int(os.environ.get("API_PORT", "8088")),
-        scrape_cron=os.environ.get("SCRAPE_CRON", "0 6 * * *"),
+        scrape_cron=os.environ.get("SCRAPE_CRON", "0 2 * * *"),
         scrape_timezone=os.environ.get("SCRAPE_TIMEZONE", "America/Sao_Paulo"),
+        cors_origins=tuple(
+            origin.strip()
+            for origin in os.environ.get(
+                "CORS_ORIGINS", "http://localhost:5188"
+            ).split(",")
+            if origin.strip()
+        ),
     )
