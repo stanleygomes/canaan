@@ -89,6 +89,20 @@ O frontend deve seguir uma linguagem visual inspirada no Airbnb Design Language 
 - Manter textos auxiliares menores e neutros; preço, localização e atributos essenciais devem ter leitura imediata.
 - Evitar gradientes decorativos, glassmorphism, excesso de ícones e ornamentos que disputem atenção com as fotos.
 
+### Bold Bento UI
+
+O frontend deve combinar a clareza editorial acima com uma linguagem **Bento UI bold**, especialmente na Home, na listagem e nos cards de imóveis:
+
+- Usar Manrope, carregada do Google Fonts, como fonte principal; títulos devem ser grandes, fortes e ter tracking levemente negativo.
+- Compor a interface com blocos modulares, bordas marcadas, cantos arredondados amplos e agrupamentos visuais independentes.
+- Usar contraste alto como regra: texto principal em `slate-950`, superfícies claras, ações em rosa/rose e blocos de apoio em amarelo suave ou azul-marinho.
+- Aplicar sombras sólidas e discretas apenas quando reforçarem a hierarquia do bloco; não usar sombras difusas excessivas.
+- Cards de imóveis devem ter presença visual: imagem dominante, preço em bloco de destaque, atributos em células bento e CTA com área grande de toque.
+- Priorizar tamanhos confortáveis para idosos: corpo mínimo de 16px, botões com pelo menos 44px de altura, labels claros e foco visível.
+- Nunca usar cor como único indicador de estado; combinar cor com texto, ícone ou estrutura.
+- Manter responsividade: uma coluna no celular, duas em telas médias e três cards por linha em telas grandes quando houver espaço.
+- Preservar leitura e acessibilidade acima do ornamento: contraste WCAG, navegação por teclado, `alt` descritivo e estados de erro/carregamento explícitos.
+
 ### Property cards and map
 
 - Cada card deve comunicar rapidamente: imagem, localização, tipo, preço, quartos, área e origem do anúncio.
