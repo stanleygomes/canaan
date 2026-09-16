@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
+import { Activity, House, SlidersHorizontal } from 'lucide-react'
 
 const destinations = [
-  { to: '/imoveis', eyebrow: 'Explorar', title: 'Imóveis', description: 'Encontre anúncios, compare atributos e abra o imóvel no portal de origem.', accent: 'bg-rose-500', size: 'md:col-span-2' },
-  { to: '/integracoes', eyebrow: 'Monitorar', title: 'Integrações', description: 'Acompanhe o histórico das coletas e dispare uma nova execução.', accent: 'bg-slate-950', size: '' },
-  { to: '/configuracoes', eyebrow: 'Configurar', title: 'Filtros', description: 'Defina cidade, finalidade, faixa de preço e fontes da sua busca.', accent: 'bg-amber-400', size: '' },
+  { to: '/imoveis', eyebrow: 'Explorar', title: 'Imóveis', description: 'Encontre anúncios, compare atributos e abra o imóvel no portal de origem.', accent: 'bg-rose-500', icon: House, size: 'md:col-span-2' },
+  { to: '/integracoes', eyebrow: 'Monitorar', title: 'Integrações', description: 'Acompanhe o histórico das coletas e dispare uma nova execução.', accent: 'bg-slate-950', icon: Activity, size: '' },
+  { to: '/configuracoes', eyebrow: 'Configurar', title: 'Filtros', description: 'Defina cidade, finalidade, faixa de preço e fontes da sua busca.', accent: 'bg-amber-400', icon: SlidersHorizontal, size: '' },
 ]
 
 export function HomePage() {
@@ -19,7 +20,7 @@ export function HomePage() {
       <nav aria-label="Acessos principais" className="mt-4 grid gap-4 md:grid-cols-2">
         {destinations.map((destination) => (
           <Link key={destination.to} to={destination.to} className={`group rounded-[2rem] border-2 border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:border-slate-950 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-rose-300 sm:p-8 ${destination.size}`}>
-            <span className={`block h-2 w-12 rounded-full ${destination.accent}`} />
+            <div className="flex items-start justify-between gap-4"><span className={`block h-2 w-12 rounded-full ${destination.accent}`} /><destination.icon aria-hidden="true" strokeWidth={2.5} className="h-9 w-9 text-slate-950" /></div>
             <p className="mt-8 text-xs font-extrabold uppercase tracking-[0.18em] text-slate-500">{destination.eyebrow}</p>
             <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.05em] text-slate-950 group-hover:text-rose-600 sm:text-4xl">{destination.title}</h2>
             <p className="mt-3 min-h-14 max-w-lg text-base leading-7 text-slate-600">{destination.description}</p>
