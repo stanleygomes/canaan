@@ -14,6 +14,18 @@ function addressLabel(property: Property) {
   return String(address.locality ?? address.raw_text ?? 'Localização não informada')
 }
 
+function portalLabel(portal: string) {
+  const labels: Record<string, string> = {
+    chavesnamao: 'Chaves na Mão',
+    imovelweb: 'Imovelweb',
+    mercadolivre: 'Mercado Livre',
+    quintoandar: 'QuintoAndar',
+    vivareal: 'Viva Real',
+    zapimoveis: 'ZAP Imóveis',
+  }
+  return labels[portal] ?? portal
+}
+
 export function PropertyCard({ property, selected, onSelect }: { property: Property; selected?: boolean; onSelect: () => void }) {
   const image = property.images[0]
   return (
@@ -28,7 +40,7 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
           <div className="flex h-full items-center justify-center text-sm text-slate-400">Sem foto disponível</div>
         )}
         <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-700">
-          {property.portal}
+          {portalLabel(property.portal)}
         </span>
       </div>
       <div className="space-y-2 p-4">
@@ -42,6 +54,15 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
           {property.useful_area_m2 !== null && <span>{property.useful_area_m2} m²</span>}
           {property.garages !== null && <span>{property.garages} vagas</span>}
         </div>
+        <a
+          href={property.url}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(event) => event.stopPropagation()}
+          className="inline-flex pt-1 text-sm font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950 hover:decoration-slate-950"
+        >
+          Ver anúncio no {portalLabel(property.portal)} ↗
+        </a>
       </div>
     </article>
   )
