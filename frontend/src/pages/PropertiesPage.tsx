@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { PropertyCard } from '../components/PropertyCard'
 import { PropertyMap } from '../components/PropertyMap'
 import { listProperties } from '../lib/api/properties'
@@ -76,9 +77,9 @@ export function PropertiesPage() {
           {!query.isLoading && !query.isError && properties.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">Nenhum imóvel encontrado com esses filtros.</p>}
           <div className="grid gap-5 md:grid-cols-2">
             {properties.map((property) => (
-              <a key={property.id} href={property.url} target="_blank" rel="noreferrer" onClick={(event) => { event.preventDefault(); setSelectedId(property.id) }}>
+              <Link key={property.id} to={`/imoveis/${property.id}`} onClick={() => setSelectedId(property.id)}>
                 <PropertyCard property={property} selected={selected?.id === property.id} onSelect={() => setSelectedId(property.id)} />
-              </a>
+              </Link>
             ))}
           </div>
           {totalPages > 1 && (
