@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
+from ..logger import logger
 
 
 def clean_currency(val: Any) -> Optional[float]:
@@ -63,12 +64,12 @@ class ChavesNaMaoScraper:
 
     async def extract_detail(self, page: Page, url: str) -> Optional[Dict[str, Any]]:
         """Acessa a página de detalhes de um imóvel e extrai todos os dados."""
-        print(f" -> Acessando: {url}")
+        logger.info("🌐 Acessando detalhe Chaves na Mão: {}", url)
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=45000)
             await page.wait_for_timeout(1500)
         except Exception as e:
-            print(f" [!] Erro ao carregar página {url}: {e}")
+            logger.opt(exception=e).error("❌ Erro ao carregar detalhe Chaves na Mão: {}", url)
             return None
 
         # 1. Extrair dados estruturados Schema.org (JSON-LD)
@@ -201,13 +202,13 @@ class ChavesNaMaoScraper:
 
         for pg in range(1, max_pages + 1):
             url = f"{search_url.rstrip('/')}/?pg={pg}" if pg > 1 else search_url
-            print(f"[+] Coletando links da página {pg}: {url}")
+            logger.info("🔗 Coletando links Chaves na Mão página {}: {}", pg, url)
 
             try:
                 await page.goto(url, wait_until="domcontentloaded", timeout=45000)
                 await page.wait_for_timeout(2000)
             except Exception as e:
-                print(f" [!] Erro ao carregar página de busca {url}: {e}")
+                logger.opt(exception=e).error("❌ Erro ao carregar busca Chaves na Mão: {}", url)
                 continue
 
             links = await page.evaluate(
@@ -223,7 +224,7 @@ class ChavesNaMaoScraper:
                 clean_link = link.split("?")[0]
                 property_urls.add(clean_link)
 
-            print(f"    Encontrados {len(links)} links na página {pg}. Total único acumulado: {len(property_urls)}")
+            logger.info("🔗 {} links encontrados; {} únicos acumulados", len(links), len(property_urls))
 
         return list(property_urls)
 
@@ -235,9 +236,7 @@ class ChavesNaMaoScraper:
         output_file: str = "chavesnamao_imoveis.json",
     ) -> List[Dict[str, Any]]:
         """Orquestra a busca, coleta os detalhes de cada imóvel e salva em JSON."""
-        print(f"=== Iniciando Scraping Chaves na Mão ===")
-        print(f"URL de busca: {search_url}")
-        print(f"Páginas: {max_pages} | Limite de imóveis: {max_properties}\n")
+        logger.info("🚀 Iniciando scraping Chaves na Mão | URL: {} | páginas: {} | limite: {}", search_url, max_pages, max_properties)
 
         results = []
 
@@ -255,17 +254,14 @@ class ChavesNaMaoScraper:
             urls = await self.get_listing_urls(page, search_url, max_pages=max_pages)
             urls_to_scrape = urls[:max_properties]
 
-            print(f"\n[+] Extraindo detalhes de {len(urls_to_scrape)} imóveis...")
+            logger.info("📦 Extraindo detalhes de {} imóveis", len(urls_to_scrape))
 
             for idx, prop_url in enumerate(urls_to_scrape, 1):
-                print(f"\n[{idx}/{len(urls_to_scrape)}]")
+                logger.info("🏠 Imóvel {}/{}", idx, len(urls_to_scrape))
                 item = await self.extract_detail(page, prop_url)
                 if item:
                     results.append(item)
-                    print(f"  ✓ Título: {item['title'][:55]}...")
-                    print(f"  ✓ Preço: R$ {item['price']} | Cond: R$ {item['condominium_fee']} | IPTU: R$ {item['iptu_fee']}")
-                    print(f"  ✓ Área útil: {item['useful_area_m2']}m² | Quartos: {item['bedrooms']} | Vagas: {item['garages']}")
-                    print(f"  ✓ Fotos: {len(item['images'])} | Anunciante: {item['advertiser']['name']}")
+                    logger.info("✅ {} | R$ {} | {}m² | {} quartos | {} vagas | {} fotos", item['title'][:55], item['price'], item['useful_area_m2'], item['bedrooms'], item['garages'], len(item['images']))
 
                 await asyncio.sleep(1)
 
@@ -274,7 +270,7 @@ class ChavesNaMaoScraper:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
-        print(f"\n=== Finalizado com sucesso! {len(results)} imóveis salvos em '{output_file}' ===")
+        logger.info("✅ Scraping Chaves na Mão finalizado: {} imóveis salvos em '{}'", len(results), output_file)
         return results
 
 

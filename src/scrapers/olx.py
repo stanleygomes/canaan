@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
+from ..logger import logger
 
 
 def clean_currency(val: Any) -> Optional[float]:
@@ -146,9 +147,7 @@ class OLXScraper:
         output_file: str = "olx_imoveis.json",
     ) -> List[Dict[str, Any]]:
         """Orquestra a coleta de imóveis da OLX."""
-        print(f"=== Iniciando Scraping OLX ===")
-        print(f"URL de busca: {search_url}")
-        print(f"Páginas: {max_pages} | Limite: {max_properties}\n")
+        logger.info("🚀 Iniciando scraping OLX | URL: {} | páginas: {} | limite: {}", search_url, max_pages, max_properties)
 
         all_properties = []
 
@@ -170,17 +169,17 @@ class OLXScraper:
 
             for pg in range(1, max_pages + 1):
                 url = f"{search_url.rstrip('/')}?o={pg}" if pg > 1 else search_url
-                print(f"[+] Acessando página {pg}: {url}")
+                logger.info("🌐 Acessando OLX página {}: {}", pg, url)
 
                 try:
                     await page.goto(url, wait_until="domcontentloaded", timeout=45000)
                     await page.wait_for_timeout(2500)
                 except Exception as e:
-                    print(f" [!] Erro ao carregar listagem {url}: {e}")
+                    logger.opt(exception=e).error("❌ Erro ao carregar listagem OLX: {}", url)
                     continue
 
                 cards = await self.extract_listing_cards(page)
-                print(f"    Extraídos {len(cards)} imóveis da página {pg}.")
+                logger.info("📦 {} imóveis extraídos da página {} da OLX", len(cards), pg)
 
                 for c in cards:
                     all_properties.append(c)
@@ -195,7 +194,7 @@ class OLXScraper:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(all_properties, f, ensure_ascii=False, indent=2)
 
-        print(f"\n=== Finalizado com sucesso! {len(all_properties)} imóveis salvos em '{output_file}' ===")
+        logger.info("✅ Scraping OLX finalizado: {} imóveis salvos em '{}'", len(all_properties), output_file)
         return all_properties
 
 

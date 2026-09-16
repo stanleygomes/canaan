@@ -1,4 +1,5 @@
 import asyncio
+import time
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
@@ -19,6 +20,7 @@ from ..db import (
     upsert_search_filters,
 )
 from ..settings import get_settings
+from ..logger import logger
 
 
 class ScrapeRunRequest(BaseModel):
@@ -111,6 +113,15 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def request_logging(request, call_next):
+    started_at = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = (time.perf_counter() - started_at) * 1000
+    logger.info("🌐 {} {} -> {} ({:.0f}ms)", request.method, request.url.path, response.status_code, elapsed_ms)
+    return response
 
 
 @app.get("/health", tags=["system"])

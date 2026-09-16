@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
+from ..logger import logger
 
 
 def clean_currency(value: Any) -> Optional[float]:
@@ -140,9 +141,7 @@ class ImovelWebScraper:
         max_properties: int = 5,
         output_file: str = "imovelweb_imoveis.json",
     ) -> List[Dict[str, Any]]:
-        print("=== Iniciando Scraping Imovelweb ===")
-        print(f"URL de busca: {search_url}")
-        print(f"Páginas: {max_pages} | Limite: {max_properties}\n")
+        logger.info("🚀 Iniciando scraping Imovelweb | URL: {} | páginas: {} | limite: {}", search_url, max_pages, max_properties)
         results = []
 
         async with async_playwright() as playwright:
@@ -160,7 +159,7 @@ class ImovelWebScraper:
 
             for page_number in range(1, max_pages + 1):
                 url = search_url if page_number == 1 else f"{search_url.rstrip('/')}/?pagina={page_number}"
-                print(f"[+] Acessando página {page_number}: {url}")
+                logger.info("🌐 Acessando Imovelweb página {}: {}", page_number, url)
                 try:
                     await page.goto(url, wait_until="domcontentloaded", timeout=45000)
                     await page.wait_for_timeout(2500)
@@ -171,11 +170,11 @@ class ImovelWebScraper:
                             "nenhum anúncio foi coletado."
                         )
                 except Exception as error:
-                    print(f" [!] Erro ao carregar listagem: {error}")
+                    logger.opt(exception=error).error("❌ Erro ao carregar listagem Imovelweb")
                     continue
 
                 cards = await self.extract_listing_cards(page)
-                print(f"    Extraídos {len(cards)} imóveis da página {page_number}.")
+                logger.info("📦 {} imóveis extraídos da página {} do Imovelweb", len(cards), page_number)
                 results.extend(cards[: max_properties - len(results)])
                 if len(results) >= max_properties:
                     break
@@ -184,7 +183,7 @@ class ImovelWebScraper:
 
         with open(output_file, "w", encoding="utf-8") as output:
             json.dump(results, output, ensure_ascii=False, indent=2)
-        print(f"\n=== Finalizado! {len(results)} imóveis salvos em '{output_file}' ===")
+        logger.info("✅ Scraping Imovelweb finalizado: {} imóveis salvos em '{}'", len(results), output_file)
         return results
 
 

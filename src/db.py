@@ -5,6 +5,7 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from .settings import get_settings
+from .logger import logger
 
 
 SCRAPE_LOCK_KEY = "canaan:scrape"
@@ -227,6 +228,7 @@ def ensure_schema() -> None:
         with connection.cursor() as cursor:
             cursor.execute(SCHEMA_SQL)
         connection.commit()
+    logger.debug("🗄️ Schema PostgreSQL verificado")
 
 
 def upsert_search_filters(filters: Dict[str, Any], name: str = "default") -> None:
@@ -283,6 +285,7 @@ def upsert_search_filters(filters: Dict[str, Any], name: str = "default") -> Non
                 ),
             )
         connection.commit()
+    logger.info("🧭 Filtros '{}' gravados no PostgreSQL", name)
 
 
 def get_search_filters(name: str = "default") -> Optional[Dict[str, Any]]:
@@ -395,4 +398,5 @@ def save_properties(properties: Iterable[Dict[str, Any]]) -> int:
             cursor.execute(SCHEMA_SQL)
             cursor.executemany(UPSERT_SQL, records)
         connection.commit()
+    logger.info("💾 {} imóveis gravados/atualizados no PostgreSQL", len(records))
     return len(records)

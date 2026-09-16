@@ -44,6 +44,8 @@ make api
 
 O `.env` da raiz configura banco, API, CORS, cron e geocoding. O padrão do cron é uma execução diária às 02:00 no fuso `America/Sao_Paulo`. O `frontend/.env` configura a URL da API e o estilo gratuito do OpenFreeMap. Para liberar mais origens, informe-as em `CORS_ORIGINS` separadas por vírgula.
 
+Os processos usam Loguru. Os logs aparecem no terminal e são salvos em `logs/canaan.log`, com rotação diária à meia-noite e retenção dos últimos 30 dias. O diretório pode ser alterado com `LOG_DIR`.
+
 Para executar uma coleta manual diretamente:
 
 ```bash

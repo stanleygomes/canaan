@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 import httpx
+from .logger import logger
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,6 +81,8 @@ class NominatimGeocoder:
                     item["geo"] = result
                     enriched += 1
         self._save_cache()
+        if enriched:
+            logger.info("📍 Geocoding concluído: {} imóveis atualizados", enriched)
         return enriched
 
     async def _request(self, client: httpx.AsyncClient, query: str) -> Optional[Dict[str, Any]]:
@@ -111,6 +114,7 @@ class NominatimGeocoder:
                 "geocoded_at": datetime.now(timezone.utc).isoformat(),
             }
         except (httpx.HTTPError, ValueError, TypeError):
+            logger.warning("⚠️ Geocoding sem resultado para: {}", query)
             return None
 
     @staticmethod

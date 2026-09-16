@@ -10,6 +10,7 @@ from urllib.parse import quote
 
 from .db import get_search_filters, save_properties
 from .geocoding import NominatimGeocoder
+from .logger import logger
 from .scrapers.chavesnamao import ChavesNaMaoScraper
 from .scrapers.imobiliarias_uberlandia import AGENCIES
 from .scrapers.imovelweb import ImovelWebScraper
@@ -117,10 +118,10 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
     file_filters = load_config()
     try:
         filters = get_search_filters() or file_filters
-        print("=== Filtros carregados do PostgreSQL ===")
+        logger.info("🧭 Filtros carregados do PostgreSQL")
     except Exception as error:
         filters = file_filters
-        print(f" [!] Não foi possível carregar filtros do PostgreSQL: {error}")
+        logger.warning("⚠️ Não foi possível carregar filtros do PostgreSQL: {}", error)
     available = source_scrapers()
     configured = filters.get("sources", list(available))
     selected = list(available) if source in ("", "all") else [source]
@@ -137,7 +138,7 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
     )
     all_properties: List[Dict[str, Any]] = []
     for name in selected:
-        print(f"\n### Source: {name} ###")
+        logger.info("🔎 Iniciando source: {}", name)
         try:
             properties = await collect_source(name, available[name], filters)
             geocoded = await geocoder.enrich(
@@ -146,12 +147,12 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
                 state=str(filters.get("state", "")),
             )
             if geocoded:
-                print(f"    {geocoded} imóveis geocodificados.")
+                logger.info("📍 {} imóveis geocodificados em {}", geocoded, name)
             matched = [item for item in properties if matches_filters(item, filters)]
-            print(f"    {len(matched)} imóveis passaram pelos filtros.")
+            logger.info("✅ {} imóveis passaram pelos filtros de {}", len(matched), name)
             all_properties.extend(matched)
         except Exception as error:
-            print(f" [!] Source {name} falhou: {error}")
+            logger.opt(exception=error).error("❌ Source {} falhou", name)
 
     unique: Dict[str, Dict[str, Any]] = {}
     for item in all_properties:
@@ -164,11 +165,11 @@ async def run(source: str = "all") -> List[Dict[str, Any]]:
     if filters.get("persist_database", True):
         try:
             saved = save_properties(unique.values())
-            print(f"=== Banco atualizado: {saved} imóveis persistidos ===")
+            logger.info("💾 Banco atualizado: {} imóveis persistidos", saved)
         except Exception as error:
-            print(f" [!] Não foi possível persistir no PostgreSQL: {error}")
+            logger.opt(exception=error).error("❌ Não foi possível persistir no PostgreSQL")
 
-    print(f"\n=== Busca concluída: {len(unique)} imóveis em '{output_path.name}' ===")
+    logger.info("🏁 Busca concluída: {} imóveis em '{}'", len(unique), output_path.name)
     return list(unique.values())
 
 

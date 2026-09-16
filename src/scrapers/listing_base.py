@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Browser, Page, async_playwright
 from playwright_stealth.stealth import Stealth
+from ..logger import logger
 
 
 def clean_currency(value: Any) -> Optional[float]:
@@ -182,13 +183,13 @@ class ListingPortalScraper:
             if item.get("property_type") == "Imóvel":
                 item["property_type"] = "Apartment" if "apartamento" in fold_text(item["title"] + detail_text) else item["property_type"]
         except Exception as error:
-            print(f" [!] Não foi possível enriquecer {item.get('url')}: {error}")
+            logger.opt(exception=error).warning("⚠️ Não foi possível enriquecer {}", item.get("url"))
         return item
 
     async def run(self, search_url: Optional[str] = None, max_pages: int = 1, max_properties: int = 5, output_file: Optional[str] = None):
         search_url = search_url or self.config.default_url
         output_file = output_file or f"{self.config.portal}_imoveis.json"
-        print(f"=== Iniciando Scraping {self.config.portal} ===")
+        logger.info("🚀 Iniciando scraping: {}", self.config.portal)
         results = []
         async with async_playwright() as playwright:
             browser: Browser = await playwright.chromium.launch(headless=self.headless, args=["--no-sandbox", "--disable-blink-features=AutomationControlled"])
@@ -198,22 +199,22 @@ class ListingPortalScraper:
             for number in range(1, max_pages + 1):
                 separator = "&" if "?" in search_url else "?"
                 url = search_url if number == 1 else f"{search_url}{separator}{self.config.page_parameter}={number}"
-                print(f"[+] Acessando página {number}: {url}")
+                logger.info("🌐 Acessando {} página {}: {}", self.config.portal, number, url)
                 try:
                     await page.goto(url, wait_until="domcontentloaded", timeout=45000)
                     await page.wait_for_timeout(2500)
                     cards = await self.extract_cards(page)
-                    print(f"    Extraídos {len(cards)} imóveis.")
+                    logger.info("📦 {} imóveis extraídos de {}", len(cards), self.config.portal)
                     for card in cards:
                         if not card.get("bedrooms") or not card.get("price"):
                             await self.enrich_from_detail(page, card)
                     results.extend(cards[: max_properties - len(results)])
                 except Exception as error:
-                    print(f" [!] Erro ao carregar listagem: {error}")
+                    logger.opt(exception=error).error("❌ Erro ao carregar listagem de {}", self.config.portal)
                 if len(results) >= max_properties:
                     break
             await browser.close()
         with open(output_file, "w", encoding="utf-8") as output:
             json.dump(results, output, ensure_ascii=False, indent=2)
-        print(f"=== Finalizado! {len(results)} imóveis salvos em '{output_file}' ===")
+        logger.info("✅ Scraping {} finalizado: {} imóveis salvos em '{}'", self.config.portal, len(results), output_file)
         return results

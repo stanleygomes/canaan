@@ -3,6 +3,7 @@ import sys
 from typing import Dict
 
 from .listing_base import ListingPortalScraper, PortalConfig
+from ..logger import logger
 
 
 AGENCIES: Dict[str, ListingPortalScraper] = {
@@ -59,7 +60,7 @@ AGENCIES: Dict[str, ListingPortalScraper] = {
 
 async def run_all(max_properties: int = 5) -> None:
     for name, scraper in AGENCIES.items():
-        print(f"\n### {name} ###")
+        logger.info("🏢 Iniciando imobiliária: {}", name)
         await scraper.run(max_properties=max_properties)
 
 
