@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
 import { HomePage } from '../pages/HomePage'
+import { IntegrationsPage } from '../pages/IntegrationsPage'
 import { PropertiesPage } from '../pages/PropertiesPage'
 import { SchedulerPage } from '../pages/SchedulerPage'
 
@@ -42,6 +43,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/imoveis" element={<PropertiesPage />} />
+              <Route path="/integracoes" element={<IntegrationsPage />} />
               <Route path="/configuracoes" element={<SchedulerPage />} />
             </Routes>
           </main>

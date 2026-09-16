@@ -8,6 +8,9 @@ from ..db import (
     DatabaseUnavailable,
     ScrapeAlreadyRunning,
     ScrapeExecutionLock,
+    create_scrape_run,
+    get_scrape_run_record,
+    update_scrape_run,
 )
 from ..search import run as run_scrape
 
@@ -40,6 +43,11 @@ class ScrapeService:
             lock = ScrapeExecutionLock().acquire()
             run = ScrapeRun(run_id=str(uuid.uuid4()), source=source, status="running")
             run.started_at = self._now()
+            try:
+                create_scrape_run(run.as_dict())
+            except Exception as error:
+                lock.close()
+                raise DatabaseUnavailable("Não foi possível registrar a execução") from error
             self._runs[run.run_id] = run
             self._tasks[run.run_id] = asyncio.create_task(self._execute(run, lock))
             return run
@@ -54,12 +62,20 @@ class ScrapeService:
             run.error = str(error)
         finally:
             run.finished_at = self._now()
+            try:
+                update_scrape_run(run.as_dict())
+            except Exception:
+                pass
             lock.close()
             self._tasks.pop(run.run_id, None)
 
     async def get(self, run_id: str) -> ScrapeRun | None:
         async with self._state_lock:
-            return self._runs.get(run_id)
+            run = self._runs.get(run_id)
+        if run:
+            return run
+        record = await asyncio.to_thread(get_scrape_run_record, run_id)
+        return ScrapeRun(**record) if record else None
 
     @staticmethod
     def _now() -> str:

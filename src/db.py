@@ -90,6 +90,18 @@ CREATE TABLE IF NOT EXISTS search_filters (
 );
 
 CREATE INDEX IF NOT EXISTS search_filters_active_idx ON search_filters (active);
+
+CREATE TABLE IF NOT EXISTS scrape_runs (
+    run_id VARCHAR(36) PRIMARY KEY,
+    source VARCHAR(80) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    started_at TIMESTAMPTZ NOT NULL,
+    finished_at TIMESTAMPTZ,
+    properties_count INTEGER,
+    error TEXT
+);
+
+CREATE INDEX IF NOT EXISTS scrape_runs_started_at_idx ON scrape_runs (started_at DESC);
 """
 
 
@@ -302,6 +314,79 @@ def get_search_filters(name: str = "default") -> Optional[Dict[str, Any]]:
             )
             row = cursor.fetchone()
     return row["raw_config"] if row else None
+
+
+def create_scrape_run(run: Dict[str, Any]) -> None:
+    ensure_schema()
+    with psycopg.connect(database_url()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO scrape_runs (run_id, source, status, started_at)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (run["run_id"], run["source"], run["status"], run["started_at"]),
+            )
+        connection.commit()
+
+
+def update_scrape_run(run: Dict[str, Any]) -> None:
+    ensure_schema()
+    with psycopg.connect(database_url()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE scrape_runs
+                SET status = %s, finished_at = %s, properties_count = %s, error = %s
+                WHERE run_id = %s
+                """,
+                (
+                    run["status"],
+                    run.get("finished_at"),
+                    run.get("properties_count"),
+                    run.get("error"),
+                    run["run_id"],
+                ),
+            )
+        connection.commit()
+
+
+def get_scrape_run_record(run_id: str) -> Optional[Dict[str, Any]]:
+    ensure_schema()
+    with psycopg.connect(database_url(), row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM scrape_runs WHERE run_id = %s", (run_id,))
+            row = cursor.fetchone()
+    if not row:
+        return None
+    return _scrape_run_row(row)
+
+
+def list_scrape_runs(*, page: int, page_size: int) -> Dict[str, Any]:
+    ensure_schema()
+    offset = (page - 1) * page_size
+    with psycopg.connect(database_url(), row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) AS total FROM scrape_runs")
+            total = cursor.fetchone()["total"]
+            cursor.execute(
+                """
+                SELECT * FROM scrape_runs
+                ORDER BY started_at DESC
+                LIMIT %s OFFSET %s
+                """,
+                (page_size, offset),
+            )
+            items = [_scrape_run_row(row) for row in cursor.fetchall()]
+    return {"items": items, "total": total}
+
+
+def _scrape_run_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    result = dict(row)
+    for key in ("started_at", "finished_at"):
+        if result.get(key) is not None:
+            result[key] = result[key].isoformat()
+    return result
 
 
 def list_properties(

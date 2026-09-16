@@ -1,5 +1,5 @@
 import { apiFetch } from './client'
-import type { SearchFilters, ScrapeRun } from './types'
+import type { SearchFilters, ScrapeRun, ScrapeRunListResponse } from './types'
 
 export function getSearchFilters(name = 'default') {
   return apiFetch<SearchFilters>(`/api/v1/search-filters/${name}`)
@@ -24,4 +24,8 @@ export function startScrape(source = 'all') {
 
 export function getScrapeRun(runId: string) {
   return apiFetch<ScrapeRun>(`/api/v1/scrape-runs/${runId}`)
+}
+
+export function listScrapeRuns(page = 1, pageSize = 20) {
+  return apiFetch<ScrapeRunListResponse>(`/api/v1/scrape-runs?page=${page}&page_size=${pageSize}`)
 }

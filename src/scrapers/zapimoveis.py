@@ -80,7 +80,14 @@ class ZapImoveisScraper:
             locality = None
 
             for i, line in enumerate(lines):
-                if "Apartamento para comprar com" in line or "Imóvel para" in line:
+                normalized_line = line.lower()
+                is_property_title = bool(
+                    re.search(
+                        r"(?:apartamento|im[oó]vel|casa|sobrado|kitnet|studio).*para\s+(?:comprar|alugar|venda|loca(?:ção|cao))",
+                        normalized_line,
+                    )
+                )
+                if is_property_title:
                     title = line
                     if i + 1 < len(lines):
                         locality = lines[i + 1]

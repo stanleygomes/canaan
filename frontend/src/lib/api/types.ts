@@ -86,3 +86,10 @@ export type ScrapeRun = {
   properties_count: number | null
   error: string | null
 }
+
+export type ScrapeRunListResponse = {
+  items: ScrapeRun[]
+  page: number
+  page_size: number
+  total: number
+}

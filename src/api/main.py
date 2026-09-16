@@ -3,11 +3,13 @@ import time
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
+import httpx
 from fastapi import FastAPI, status
 from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from ..application.scrape_service import scrape_service
@@ -17,6 +19,7 @@ from ..db import (
     get_search_filters,
     get_property,
     list_properties,
+    list_scrape_runs,
     upsert_search_filters,
 )
 from ..settings import get_settings
@@ -37,6 +40,13 @@ class ScrapeRunResponse(BaseModel):
     finished_at: str | None = None
     properties_count: int | None = None
     error: str | None = None
+
+
+class ScrapeRunListResponse(BaseModel):
+    items: List[ScrapeRunResponse]
+    page: int
+    page_size: int
+    total: int
 
 
 class ErrorResponse(BaseModel):
@@ -106,6 +116,17 @@ class SearchFiltersResponse(SearchFilters):
 
 
 app = FastAPI(title="Canaan API", version="1.0.0")
+ALLOWED_IMAGE_DOMAINS = (
+    "chavesnamao.com.br",
+    "imovelweb.com.br",
+    "loft.com.br",
+    "mercadolivre.com.br",
+    "olx.com.br",
+    "quintoandar.com.br",
+    "vivareal.com",
+    "vivareal.com.br",
+    "zapimoveis.com.br",
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(get_settings().cors_origins),
@@ -127,6 +148,84 @@ async def request_logging(request, call_next):
 @app.get("/health", tags=["system"])
 async def health() -> Dict[str, str]:
     return {"status": "ok"}
+
+
+def is_allowed_image_host(hostname: str | None) -> bool:
+    normalized = (hostname or "").lower().rstrip(".")
+    return any(
+        normalized == domain or normalized.endswith(f".{domain}")
+        for domain in ALLOWED_IMAGE_DOMAINS
+    )
+
+
+@app.get(
+    "/api/v1/images",
+    tags=["images"],
+    responses={
+        400: {"model": ErrorResponse},
+        502: {"model": ErrorResponse},
+    },
+)
+async def read_image(url: str = Query(..., min_length=1, max_length=2048)) -> Response:
+    parsed_url = urlsplit(url)
+    if parsed_url.scheme != "https" or not is_allowed_image_host(parsed_url.hostname):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "error": {
+                    "code": "invalid_image_url",
+                    "message": "A URL da imagem não pertence a um portal permitido",
+                }
+            },
+        )
+
+    try:
+        async with httpx.AsyncClient(
+            follow_redirects=True,
+            timeout=15,
+            headers={"User-Agent": "Canaan/1.0"},
+        ) as client:
+            upstream = await client.get(url)
+    except httpx.HTTPError as error:
+        logger.warning("⚠️ Falha ao carregar imagem do portal: {}", error)
+        return JSONResponse(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            content={
+                "error": {
+                    "code": "image_upstream_unavailable",
+                    "message": "Não foi possível carregar a imagem do portal",
+                }
+            },
+        )
+
+    if not is_allowed_image_host(upstream.url.host) or upstream.status_code != 200:
+        return JSONResponse(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            content={
+                "error": {
+                    "code": "image_upstream_rejected",
+                    "message": "O portal não disponibilizou a imagem",
+                }
+            },
+        )
+
+    content_type = upstream.headers.get("content-type", "").split(";", 1)[0].lower()
+    if not content_type.startswith("image/"):
+        return JSONResponse(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            content={
+                "error": {
+                    "code": "invalid_image_content",
+                    "message": "O portal retornou um conteúdo que não é imagem",
+                }
+            },
+        )
+
+    return Response(
+        content=upstream.content,
+        media_type=content_type,
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @app.get(
@@ -262,6 +361,19 @@ async def create_scrape_run(request: ScrapeRunRequest) -> ScrapeRunResponse:
             content={"error": {"code": "database_unavailable", "message": str(error)}},
         )
     return ScrapeRunResponse(**run.as_dict())
+
+
+@app.get(
+    "/api/v1/scrape-runs",
+    response_model=ScrapeRunListResponse,
+    tags=["scrape-runs"],
+)
+async def list_scrape_run_history(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> ScrapeRunListResponse:
+    result = await asyncio.to_thread(list_scrape_runs, page=page, page_size=page_size)
+    return ScrapeRunListResponse(items=result["items"], page=page, page_size=page_size, total=result["total"])
 
 
 @app.get(

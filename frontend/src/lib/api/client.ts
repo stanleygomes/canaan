@@ -3,6 +3,10 @@ const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8088'
   '',
 )
 
+export function apiUrl(path: string) {
+  return `${apiBaseUrl}${path}`
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -15,7 +19,7 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const response = await fetch(apiUrl(path), {
     ...init,
     headers: {
       Accept: 'application/json',

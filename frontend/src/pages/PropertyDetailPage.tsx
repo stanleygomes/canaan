@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
+import { apiUrl } from '../lib/api/client'
 import { getProperty } from '../lib/api/properties'
 
 function formatPrice(value: number | null, currency: string) {
@@ -38,7 +39,7 @@ export function PropertyDetailPage() {
       <Link to="/" className="text-sm font-semibold text-slate-500 transition hover:text-slate-950">← Voltar para imóveis</Link>
       <div className="mt-6 grid gap-2 overflow-hidden rounded-2xl bg-slate-100 md:mt-7 md:grid-cols-2">
         {images.length > 0 ? images.map((image, index) => (
-          <img key={image} src={image} alt={`${property.title || 'Imóvel'} - foto ${index + 1}`} className={`h-64 w-full object-cover md:h-80 ${index === 0 ? 'md:row-span-2 md:h-full' : ''}`} />
+          <img key={image} src={apiUrl(`/api/v1/images?url=${encodeURIComponent(image)}`)} alt={`${property.title || 'Imóvel'} - foto ${index + 1}`} className={`h-64 w-full object-cover md:h-80 ${index === 0 ? 'md:row-span-2 md:h-full' : ''}`} />
         )) : <div className="flex h-80 items-center justify-center text-slate-400 md:row-span-2">Sem fotos disponíveis</div>}
       </div>
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_280px]">

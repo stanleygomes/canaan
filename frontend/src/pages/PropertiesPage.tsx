@@ -5,7 +5,7 @@ import { PropertyMap } from '../components/PropertyMap'
 import { listProperties } from '../lib/api/properties'
 import type { PropertyListParams } from '../lib/api/types'
 
-const initialFilters: PropertyListParams = { page: 1, page_size: 24, sort_by: 'last_seen_at', sort_order: 'desc' }
+const initialFilters: PropertyListParams = { page: 1, page_size: 50, sort_by: 'last_seen_at', sort_order: 'desc' }
 
 export function PropertiesPage() {
   const [filters, setFilters] = useState<PropertyListParams>(initialFilters)
@@ -16,7 +16,7 @@ export function PropertiesPage() {
   const properties = query.data?.items ?? []
   const selected = useMemo(() => properties.find((item) => item.id === selectedId), [properties, selectedId])
   const currentPage = filters.page ?? 1
-  const pageSize = filters.page_size ?? 24
+  const pageSize = filters.page_size ?? 50
   const totalPages = Math.max(1, Math.ceil((query.data?.total ?? 0) / pageSize))
 
   const updateFilter = (key: keyof PropertyListParams, value: string) => {
@@ -74,7 +74,7 @@ export function PropertiesPage() {
           {query.isLoading && <p className="py-12 text-center text-slate-500">Carregando imóveis...</p>}
           {query.isError && <p className="rounded-2xl bg-rose-50 p-5 text-sm text-rose-700">Não foi possível carregar os imóveis.</p>}
           {!query.isLoading && !query.isError && properties.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">Nenhum imóvel encontrado com esses filtros.</p>}
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {properties.map((property) => (
               <PropertyCard key={property.id} property={property} selected={selected?.id === property.id} onSelect={() => setSelectedId(property.id)} />
             ))}
