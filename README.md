@@ -19,37 +19,30 @@ Os imóveis são persistidos na tabela PostgreSQL `properties`. O contrato possu
 - Node.js e npm;
 - Docker e Docker Compose.
 
-### Instalação
+### Subida rápida
 
-Na raiz do projeto:
+Na raiz do projeto, execute:
 
 ```bash
-cp .env.example .env
-make install
-make db-up
-make sync-filters
+make setup
+make dev
 ```
 
-Configure também o frontend:
+O `make setup` cria os arquivos `.env` quando necessário, instala as dependências, inicia o PostgreSQL, sincroniza os filtros e prepara o frontend. O `make dev` sobe API, cron e frontend juntos.
+
+URLs locais:
+
+- Frontend: `http://localhost:5188`;
+- API: `http://localhost:8088`;
+- OpenAPI: `http://localhost:8088/docs`.
+
+Para subir somente a API:
 
 ```bash
-cp frontend/.env.example frontend/.env
-cd frontend
-npm install
-cd ..
+make api
 ```
 
 O `.env` da raiz configura banco, API, cron e geocoding. O `frontend/.env` configura a URL da API.
-
-### Executar os processos
-
-Abra terminais separados na raiz do projeto:
-
-```bash
-make api       # API em http://localhost:8088
-make cron      # worker agendado conforme SCRAPE_CRON
-make frontend  # frontend em http://localhost:5188
-```
 
 Para executar uma coleta manual diretamente:
 

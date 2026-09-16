@@ -3,11 +3,13 @@
 # Backend API: 8088
 # Frontend: 5188
 
-.PHONY: help install db-up db-down db-logs scrape sync-filters api cron frontend
+.PHONY: help install setup dev db-up db-down db-logs scrape sync-filters api cron frontend
 
 help:
 	@echo "Comandos disponiveis:"
 	@echo "  make install           - Instala dependencias com uv e browsers do Playwright"
+	@echo "  make setup             - Prepara banco, filtros e frontend"
+	@echo "  make dev               - Sobe API, cron e frontend juntos"
 	@echo "  make db-up             - Sobe o banco PostgreSQL na porta 5435 via Docker"
 	@echo "  make db-down           - Para o container do PostgreSQL"
 	@echo "  make db-logs           - Acompanha os logs do banco"
@@ -21,6 +23,20 @@ help:
 install:
 	uv sync
 	uv run playwright install chromium
+
+setup: install
+	@test -f .env || cp .env.example .env
+	@docker compose up -d
+	@uv run python -m src.sync_filters
+	@test -f frontend/.env || cp frontend/.env.example frontend/.env
+	@test -d frontend/node_modules || (cd frontend && npm install)
+
+dev: setup
+	@trap 'kill 0' INT TERM EXIT; \
+	uv run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8088 & \
+	uv run python -m src.cron & \
+	(cd frontend && npm run dev -- --port 5188 --host 0.0.0.0) & \
+	wait
 
 db-up:
 	docker compose up -d
