@@ -34,6 +34,7 @@ function Detail({ label, value }: { label: string; value: unknown }) {
 
 export function PropertyCard({ property, selected, onSelect }: { property: Property; selected?: boolean; onSelect: () => void }) {
   const [currentImage, setCurrentImage] = useState(0)
+  const [showDetails, setShowDetails] = useState(false)
   const images = property.images
   const image = images[currentImage]
   const imageUrl = image ? apiUrl(`/api/v1/images?url=${encodeURIComponent(image)}`) : undefined
@@ -69,10 +70,13 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
         <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Detail label="Tipo" value={property.property_type} /><Detail label="Quartos" value={property.bedrooms} /><Detail label="Suítes" value={property.suites} /><Detail label="Banheiros" value={property.bathrooms} /><Detail label="Vagas" value={property.garages} /><Detail label="Área útil" value={property.useful_area_m2 ? `${property.useful_area_m2} m²` : null} /><Detail label="Área total" value={property.total_area_m2 ? `${property.total_area_m2} m²` : null} /><Detail label="Condomínio" value={property.condominium_fee !== null ? formatPrice(property.condominium_fee, property.currency) : null} /><Detail label="IPTU" value={property.iptu_fee !== null ? formatPrice(property.iptu_fee, property.currency) : null} />
         </dl>
-        {address.length > 0 && <div className="rounded-2xl border-2 border-slate-200 p-4"><p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Endereço informado</p><p className="mt-1 text-base font-bold leading-6 text-slate-950">{address.join(' · ')}</p></div>}
-        {property.description && <div className="rounded-2xl bg-amber-100 p-4"><p className="text-[11px] font-extrabold uppercase tracking-wide text-amber-900">Sobre o imóvel</p><p className="mt-1 line-clamp-4 text-sm font-semibold leading-6 text-slate-900">{property.description}</p></div>}
-        {amenities.length > 0 && <div><p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Características</p><p className="mt-1 text-sm font-semibold leading-6 text-slate-800">{amenities.join(' · ')}</p></div>}
-        <dl className="grid grid-cols-2 gap-2"><Detail label="Anunciante" value={property.advertiser.name} /><Detail label="Coletado em" value={formatDate(property.collected_at)} /><Detail label="Visto pela primeira vez" value={formatDate(property.first_seen_at)} /><Detail label="Visto por último" value={formatDate(property.last_seen_at)} /></dl>
+        <button type="button" aria-expanded={showDetails} onClick={(event) => { event.stopPropagation(); setShowDetails((visible) => !visible) }} className="button-secondary w-full justify-between">{showDetails ? 'Ocultar detalhes' : 'Mostrar mais informações'}<span aria-hidden="true" className={`text-xl transition ${showDetails ? 'rotate-180' : ''}`}>⌄</span></button>
+        {showDetails && <div className="space-y-4">
+          {address.length > 0 && <div className="rounded-2xl border-2 border-slate-200 p-4"><p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Endereço informado</p><p className="mt-1 text-base font-bold leading-6 text-slate-950">{address.join(' · ')}</p></div>}
+          {property.description && <div className="rounded-2xl bg-amber-100 p-4"><p className="text-[11px] font-extrabold uppercase tracking-wide text-amber-900">Sobre o imóvel</p><p className="mt-1 line-clamp-4 text-sm font-semibold leading-6 text-slate-900">{property.description}</p></div>}
+          {amenities.length > 0 && <div><p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Características</p><p className="mt-1 text-sm font-semibold leading-6 text-slate-800">{amenities.join(' · ')}</p></div>}
+          <dl className="grid grid-cols-2 gap-2"><Detail label="Anunciante" value={property.advertiser.name} /><Detail label="Coletado em" value={formatDate(property.collected_at)} /><Detail label="Visto pela primeira vez" value={formatDate(property.first_seen_at)} /><Detail label="Visto por último" value={formatDate(property.last_seen_at)} /></dl>
+        </div>}
         <a href={property.url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="button-primary w-full gap-2">Abrir anúncio no {portalLabel(property.portal)} <span aria-hidden="true">↗</span></a>
       </div>
     </article>
