@@ -59,8 +59,8 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
       <div className="space-y-5 p-5">
         <div>
           <div className="flex flex-wrap gap-2">
-            {neighborhood && <span className="max-w-full truncate rounded-full border-2 border-rose-200 bg-rose-50 px-3 py-1 text-xs font-extrabold text-rose-800">Bairro · {neighborhood}</span>}
-            <span className="max-w-full truncate rounded-full border-2 border-slate-200 bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-800">Imobiliária · {agency ?? portalLabel(property.portal)}</span>
+            {neighborhood && <span className="max-w-full truncate rounded-full border-2 border-rose-200 bg-rose-50 px-3 py-1 text-xs font-extrabold text-rose-800">{neighborhood}</span>}
+            <span className="max-w-full truncate rounded-full border-2 border-slate-200 bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-800">{agency ?? portalLabel(property.portal)}</span>
           </div>
           <p className="mt-3 text-sm font-extrabold uppercase tracking-wide text-slate-500">{location}</p>
           <h2 className="mt-2 line-clamp-2 text-2xl font-extrabold leading-7 tracking-[-0.04em] text-slate-950">{property.title || 'Imóvel sem título'}</h2>
