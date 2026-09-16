@@ -1,4 +1,5 @@
 import type { Property } from '../lib/api/types'
+import { Link } from 'react-router-dom'
 
 function formatPrice(value: number | null, currency: string) {
   if (value === null) return 'Preço sob consulta'
@@ -45,9 +46,11 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
       </div>
       <div className="space-y-2 p-4">
         <p className="line-clamp-1 text-sm font-medium text-slate-500">{addressLabel(property)}</p>
-        <h2 className="line-clamp-2 min-h-12 text-[17px] font-semibold leading-6 tracking-[-0.01em] text-slate-950">
-          {property.title || 'Imóvel sem título'}
-        </h2>
+        <Link to={`/imoveis/${property.id}`} className="block rounded-sm focus:outline-none focus:ring-2 focus:ring-slate-950/20">
+          <h2 className="line-clamp-2 min-h-12 text-[17px] font-semibold leading-6 tracking-[-0.01em] text-slate-950">
+            {property.title || 'Imóvel sem título'}
+          </h2>
+        </Link>
         <p className="text-lg font-semibold text-slate-950">{formatPrice(property.price, property.currency)}</p>
         <div className="flex gap-4 pt-1 text-sm text-slate-500">
           {property.bedrooms !== null && <span>{property.bedrooms} quartos</span>}

@@ -32,14 +32,14 @@ export function SchedulerPage() {
   if (filtersQuery.isError) return <div className="mx-auto max-w-3xl px-6 py-16 text-rose-600">Não foi possível carregar a configuração.</div>
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
+    <div className="mx-auto max-w-4xl px-4 py-7 sm:px-6 sm:py-10 lg:px-10">
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">Automação</p>
-        <h1 className="text-4xl font-semibold tracking-[-0.04em]">Configure sua busca.</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Configure sua busca.</h1>
         <p className="mt-3 max-w-xl leading-7 text-slate-500">Essas regras controlam as próximas coletas automáticas. A listagem de imóveis possui filtros próprios.</p>
       </div>
       <form className="space-y-6" onSubmit={(event) => { event.preventDefault(); saveMutation.mutate(filters) }}>
-        <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 md:grid-cols-2">
+        <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 md:grid-cols-2">
           <label className="label">Cidade<input className="field mt-2" value={filters.city} onChange={(event) => setField('city', event.target.value)} /></label>
           <label className="label">Estado<input className="field mt-2" maxLength={2} value={filters.state} onChange={(event) => setField('state', event.target.value.toUpperCase())} /></label>
           <label className="label md:col-span-2">Bairros <span className="font-normal text-slate-400">separados por vírgula</span><input className="field mt-2" value={filters.neighborhoods.join(', ')} onChange={(event) => setField('neighborhoods', splitList(event.target.value))} /></label>
@@ -49,9 +49,9 @@ export function SchedulerPage() {
           <label className="flex items-center gap-3 text-sm font-medium"><input type="checkbox" checked={filters.geocoding_enabled} onChange={(event) => setField('geocoding_enabled', event.target.checked)} /> Geocodificar anúncios sem coordenadas</label>
           <label className="label">Máximo de páginas<input className="field mt-2" type="number" min={1} value={filters.max_pages} onChange={(event) => setField('max_pages', Number(event.target.value))} /></label>
         </section>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <button className="button-secondary" type="submit" disabled={saveMutation.isPending}>{saveMutation.isPending ? 'Salvando...' : 'Salvar configuração'}</button>
-          <button className="button-primary" type="button" disabled={runMutation.isPending || runQuery.data?.status === 'running'} onClick={() => runMutation.mutate()}>{runMutation.isPending ? 'Iniciando...' : '↻ Atualizar imóveis agora'}</button>
+        <div className="flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+          <button className="button-secondary w-full sm:w-auto" type="submit" disabled={saveMutation.isPending}>{saveMutation.isPending ? 'Salvando...' : 'Salvar configuração'}</button>
+          <button className="button-primary w-full sm:w-auto" type="button" disabled={runMutation.isPending || runQuery.data?.status === 'running'} onClick={() => runMutation.mutate()}>{runMutation.isPending ? 'Iniciando...' : '↻ Atualizar imóveis agora'}</button>
         </div>
       </form>
       {runQuery.data && <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"><p className="text-sm font-semibold">Execução manual: <span className="text-slate-500">{runQuery.data.status}</span></p>{runQuery.data.properties_count !== null && <p className="mt-2 text-sm text-slate-500">{runQuery.data.properties_count} imóveis processados.</p>}{runQuery.data.error && <p className="mt-2 text-sm text-rose-600">{runQuery.data.error}</p>}</div>}
