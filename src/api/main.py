@@ -7,6 +7,7 @@ from fastapi import FastAPI, status
 from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from ..application.scrape_service import scrape_service
 from ..db import (
@@ -17,6 +18,7 @@ from ..db import (
     list_properties,
     upsert_search_filters,
 )
+from ..settings import get_settings
 
 
 class ScrapeRunRequest(BaseModel):
@@ -102,6 +104,13 @@ class SearchFiltersResponse(SearchFilters):
 
 
 app = FastAPI(title="Canaan API", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(get_settings().cors_origins),
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health", tags=["system"])
