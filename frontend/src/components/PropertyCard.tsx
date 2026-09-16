@@ -46,7 +46,7 @@ export function PropertyCard({ property, selected, onSelect }: { property: Prope
   const nextImage = () => setCurrentImage((current) => (current + 1) % images.length)
 
   return (
-    <article className={`group overflow-hidden rounded-[2rem] border-2 bg-white shadow-[5px_5px_0_#0f172a] transition hover:-translate-y-1 hover:shadow-[8px_8px_0_#0f172a] ${selected ? 'border-rose-500 ring-4 ring-rose-500/20' : 'border-slate-950'}`} onClick={onSelect}>
+    <article className={`group overflow-hidden rounded-[2rem] border-2 bg-white transition hover:-translate-y-1 hover:border-slate-950 hover:shadow-xl focus-within:ring-4 focus-within:ring-rose-300 ${selected ? 'border-rose-500 ring-4 ring-rose-500/20' : 'border-slate-200'}`} onClick={onSelect}>
       <div className="relative aspect-[5/4] overflow-hidden bg-slate-100">
         {imageUrl ? <img src={imageUrl} alt={`${property.title || 'Imóvel'} - foto ${currentImage + 1}`} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center text-sm text-slate-400">Sem foto disponível</div>}
         {images.length > 1 && <>
